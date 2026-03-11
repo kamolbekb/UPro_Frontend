@@ -95,7 +95,6 @@ export function TaskFilters({
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
             {categories
               ?.filter((cat) => !cat.parentId) // Only top-level categories
               .map((category) => (
@@ -119,7 +118,6 @@ export function TaskFilters({
             <SelectValue placeholder="All Regions" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Regions</SelectItem>
             {regions?.map((region) => (
               <SelectItem key={region.id} value={region.id}>
                 {region.name}
@@ -138,7 +136,6 @@ export function TaskFilters({
             <SelectValue placeholder="All Districts" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Districts</SelectItem>
             {districts.map((district) => (
               <SelectItem key={district.id} value={district.id}>
                 {district.name}
@@ -158,7 +155,6 @@ export function TaskFilters({
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
             <SelectItem value={TaskStatus.Published.toString()}>Open</SelectItem>
             <SelectItem value={TaskStatus.InProgress.toString()}>In Progress</SelectItem>
             <SelectItem value={TaskStatus.Completed.toString()}>Completed</SelectItem>

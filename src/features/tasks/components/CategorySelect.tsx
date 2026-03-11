@@ -103,7 +103,6 @@ export function CategorySelect({
               <SelectValue placeholder="Select a subcategory" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
               {subCategories.map((subCategory) => (
                 <SelectItem key={subCategory.id} value={subCategory.id}>
                   {subCategory.name}
