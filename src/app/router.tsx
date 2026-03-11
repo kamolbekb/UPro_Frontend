@@ -1,26 +1,24 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { ROUTES, ROUTE_PATTERNS } from '@shared/constants/routes';
 import { AuthLayout } from '@shared/components/layout/AuthLayout';
-// import { MainLayout } from '@shared/components/layout/MainLayout';
-// import { ProtectedRoute } from '@shared/components/guards/ProtectedRoute';
+import { ProtectedRoute } from '@shared/components/guards/ProtectedRoute';
 
-// Auth Pages (Phase 3 - US1)
+// Auth Pages
 import { LoginPage } from '@features/auth/pages/LoginPage';
 import { OtpVerifyPage } from '@features/auth/pages/OtpVerifyPage';
 
-// Task Pages (Phase 4 - US2)
-import { TasksPage } from '@features/tasks/pages/TasksPage';
-import { TaskDetailPage } from '@features/tasks/pages/TaskDetailPage';
+// Home Page (unified tasks/executors view)
+import { HomePage } from '@features/home/pages/HomePage';
 
-// Task Pages (Phase 5 - US3)
+// Task Pages
+import { TaskDetailPage } from '@features/tasks/pages/TaskDetailPage';
 import { CreateTaskPage } from '@features/tasks/pages/CreateTaskPage';
 
-// Executor Pages (Phase 6 - US4)
-import { ExecutorsPage } from '@features/executors/pages/ExecutorsPage';
+// Executor Pages
 import { ExecutorProfilePage } from '@features/executors/pages/ExecutorProfilePage';
 import { BecomeExecutorPage } from '@features/executors/pages/BecomeExecutorPage';
 
-// Chat Pages (Phase 7 - US5)
+// Chat Pages
 import { ChatPage } from '@features/chat/pages/ChatPage';
 
 // Placeholder components (will be replaced with actual pages in future phases)
@@ -41,10 +39,10 @@ const NotFoundPage = () => <PlaceholderPage title="404 - Not Found" />;
  * Application router configuration
  */
 const router = createBrowserRouter([
-  // Root redirect
+  // Root redirect to home page
   {
     path: ROUTES.HOME,
-    element: <Navigate to={ROUTES.TASKS} replace />,
+    element: <HomePage />,
   },
 
   // Auth routes (public) - wrapped in AuthLayout
@@ -62,48 +60,74 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Task routes (protected)
+  // Home routes (public - shows tasks/executors)
   {
     path: ROUTES.TASKS,
-    element: <TasksPage />, // TODO: Wrap with ProtectedRoute + MainLayout in T026-T027
+    element: <HomePage />,
   },
   {
+    path: ROUTES.EXECUTORS,
+    element: <HomePage />,
+  },
+
+  // Task routes
+  {
     path: ROUTE_PATTERNS.TASK_DETAIL,
-    element: <TaskDetailPage />,
+    element: (
+      <ProtectedRoute>
+        <TaskDetailPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: ROUTES.TASK_NEW,
-    element: <CreateTaskPage />,
+    element: (
+      <ProtectedRoute>
+        <CreateTaskPage />
+      </ProtectedRoute>
+    ),
   },
 
-  // Executor routes (protected)
-  {
-    path: ROUTES.EXECUTORS,
-    element: <ExecutorsPage />,
-  },
+  // Executor routes
   {
     path: ROUTE_PATTERNS.EXECUTOR_PROFILE,
     element: <ExecutorProfilePage />,
   },
   {
     path: ROUTES.EXECUTOR_BECOME,
-    element: <BecomeExecutorPage />,
+    element: (
+      <ProtectedRoute>
+        <BecomeExecutorPage />
+      </ProtectedRoute>
+    ),
   },
 
   // Chat routes (protected)
   {
     path: ROUTES.CHAT,
-    element: <ChatPage />,
+    element: (
+      <ProtectedRoute>
+        <ChatPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: ROUTE_PATTERNS.CHAT_CONVERSATION,
-    element: <ChatPage />,
+    element: (
+      <ProtectedRoute>
+        <ChatPage />
+      </ProtectedRoute>
+    ),
   },
 
   // Profile routes (protected)
   {
     path: ROUTES.PROFILE,
-    element: <ProfilePage />,
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
   },
 
   // 404 catch-all

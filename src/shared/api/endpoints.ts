@@ -26,6 +26,8 @@ export const ENDPOINTS = {
     update: (id: string) => `/api/OrderTasks/${id}`,
     delete: (id: string) => `/api/OrderTasks/${id}`,
     archive: (id: string) => `/api/OrderTasks/archive/${id}`,
+    save: (taskId: string) => `/api/SavedTasks/${taskId}`,
+    saved: '/api/SavedTasks',
   },
 
   /**
@@ -49,6 +51,8 @@ export const ENDPOINTS = {
     myProfile: '/api/Executors/profile',
     updateProfile: '/api/Executors/profile',
     deleteProfile: '/api/Executors/profile',
+    languages: '/api/Executors/languages',
+    educationTypes: '/api/Executors/education-types',
   },
 
   /**

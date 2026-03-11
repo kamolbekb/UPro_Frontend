@@ -10,7 +10,7 @@ import type { VerifyOtpResponse } from '../types/auth.types';
  * Request parameters for OTP verification
  */
 interface VerifyOtpParams {
-  phoneNumber: string;
+  email: string;
   code: string;
 }
 
@@ -19,7 +19,7 @@ interface VerifyOtpParams {
  *
  * Handles the second step of authentication:
  * 1. User enters 6-digit OTP code
- * 2. Backend verifies code and returns user + tokens
+ * 2. Backend verifies code and returns tokens
  * 3. Tokens are stored in auth store
  * 4. User is navigated to tasks page
  *
@@ -28,7 +28,7 @@ interface VerifyOtpParams {
  * const verifyOtpMutation = useVerifyOtp();
  *
  * const handleSubmit = (code: string) => {
- *   verifyOtpMutation.mutate({ phoneNumber, code });
+ *   verifyOtpMutation.mutate({ email, code });
  * };
  * ```
  */
@@ -37,10 +37,10 @@ export function useVerifyOtp() {
   const setTokens = useAuthStore((state) => state.setTokens);
 
   return useMutation<VerifyOtpResponse, Error, VerifyOtpParams>({
-    mutationFn: ({ phoneNumber, code }) => verifyOtp(phoneNumber, code),
+    mutationFn: ({ email, code }) => verifyOtp(email, code),
     onSuccess: (data) => {
-      // Store authentication tokens and user data
-      setTokens(data.accessToken, data.refreshToken, data.user);
+      // Store authentication tokens
+      setTokens(data.accessToken, data.refreshToken, data.id, data.isProfileCompleted);
 
       // Show success message
       toast.success('Successfully logged in!', { duration: 3000 });

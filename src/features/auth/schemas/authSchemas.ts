@@ -7,19 +7,16 @@ import { z } from 'zod';
  */
 
 /**
- * Phone number validation schema (E.164 format for Uzbekistan)
+ * Email validation schema
  *
- * Format: +998XXXXXXXXX (13 characters total)
- * Example: +998901234567
+ * Format: standard email format
+ * Example: user@example.com
  */
-export const phoneNumberSchema = z.object({
-  phoneNumber: z
+export const emailSchema = z.object({
+  email: z
     .string()
-    .min(1, 'Phone number is required')
-    .regex(
-      /^\+998[0-9]{9}$/,
-      'Phone number must be in format +998XXXXXXXXX (e.g., +998901234567)'
-    ),
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
 });
 
 /**
@@ -38,15 +35,15 @@ export const otpCodeSchema = z.object({
 /**
  * Send OTP request validation schema
  */
-export const sendOtpSchema = phoneNumberSchema;
+export const sendOtpSchema = emailSchema;
 
 /**
  * Verify OTP request validation schema
  *
- * Combines phone number and OTP code validation
+ * Combines email and OTP code validation
  */
 export const verifyOtpSchema = z.object({
-  phoneNumber: phoneNumberSchema.shape.phoneNumber,
+  email: emailSchema.shape.email,
   code: otpCodeSchema.shape.code,
 });
 
@@ -55,5 +52,5 @@ export const verifyOtpSchema = z.object({
  */
 export type SendOtpFormData = z.infer<typeof sendOtpSchema>;
 export type VerifyOtpFormData = z.infer<typeof verifyOtpSchema>;
-export type PhoneNumberFormData = z.infer<typeof phoneNumberSchema>;
+export type EmailFormData = z.infer<typeof emailSchema>;
 export type OtpCodeFormData = z.infer<typeof otpCodeSchema>;

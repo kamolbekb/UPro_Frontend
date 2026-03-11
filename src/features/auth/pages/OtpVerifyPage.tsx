@@ -11,14 +11,14 @@ import { ROUTES } from '@/shared/constants/routes';
  * Location state from LoginPage
  */
 interface LocationState {
-  phoneNumber: string;
+  email: string;
 }
 
 /**
  * OtpVerifyPage - OTP code verification
  *
  * Flow:
- * 1. User arrives from LoginPage with phone number in state
+ * 1. User arrives from LoginPage with email in state
  * 2. User enters 6-digit OTP code
  * 3. On complete, OTP is auto-submitted
  * 4. On success, user is authenticated and navigated to tasks
@@ -27,7 +27,7 @@ interface LocationState {
  * - 6-digit OTP input with auto-focus
  * - Auto-submit on complete
  * - Resend OTP with 60-second countdown
- * - Back button to return to phone entry
+ * - Back button to return to email entry
  * - Loading state during verification
  */
 export function OtpVerifyPage() {
@@ -40,17 +40,17 @@ export function OtpVerifyPage() {
   const [resendCountdown, setResendCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
-  // Get phone number from navigation state
-  const phoneNumber = (location.state as LocationState | null)?.phoneNumber;
+  // Get email from navigation state
+  const email = (location.state as LocationState | null)?.email;
 
   /**
-   * Redirect to login if no phone number in state
+   * Redirect to login if no email in state
    */
   useEffect(() => {
-    if (!phoneNumber) {
+    if (!email) {
       navigate(ROUTES.LOGIN, { replace: true });
     }
-  }, [phoneNumber, navigate]);
+  }, [email, navigate]);
 
   /**
    * Countdown timer for resend button
@@ -71,8 +71,8 @@ export function OtpVerifyPage() {
    * Handle OTP completion (auto-submit)
    */
   const handleComplete = (code: string) => {
-    if (phoneNumber) {
-      verifyOtp.mutate({ phoneNumber, code });
+    if (email) {
+      verifyOtp.mutate({ email, code });
     }
   };
 
@@ -80,9 +80,9 @@ export function OtpVerifyPage() {
    * Handle resend OTP
    */
   const handleResend = () => {
-    if (!canResend || !phoneNumber) return;
+    if (!canResend || !email) return;
 
-    login.mutate(phoneNumber, {
+    login.mutate(email, {
       onSuccess: () => {
         // Reset countdown
         setResendCountdown(60);
@@ -100,16 +100,7 @@ export function OtpVerifyPage() {
     navigate(ROUTES.LOGIN);
   };
 
-  // Format phone number for display
-  const formatPhoneNumber = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.startsWith('998')) {
-      return `+${cleaned.slice(0, 3)} ${cleaned.slice(3, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8, 10)} ${cleaned.slice(10, 12)}`;
-    }
-    return phone;
-  };
-
-  if (!phoneNumber) {
+  if (!email) {
     return null; // Will redirect in useEffect
   }
 
@@ -136,7 +127,7 @@ export function OtpVerifyPage() {
             Enter the 6-digit code sent to
           </p>
           <p className="font-mono text-sm font-medium">
-            {formatPhoneNumber(phoneNumber)}
+            {email}
           </p>
         </div>
 

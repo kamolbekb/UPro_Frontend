@@ -69,14 +69,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await refreshTokenApi(storedRefreshToken);
 
       // Update tokens in store
-      // Note: We don't have user data from refresh endpoint,
-      // so we keep existing user (or it will be fetched separately)
-      if (user) {
-        setTokens(response.accessToken, response.refreshToken, user);
+      // Note: Backend returns new tokens with isProfileCompleted
+      const userId = useAuthStore.getState().userId;
+      if (userId) {
+        setTokens(
+          response.accessToken,
+          response.refreshToken,
+          userId,
+          response.isProfileCompleted ?? false
+        );
       } else {
-        // If no user in store, we can't refresh properly
+        // If no userId in store, we can't refresh properly
         // This shouldn't happen, but handle gracefully
-        console.warn('Token refresh succeeded but no user in store');
+        console.warn('Token refresh succeeded but no userId in store');
         logout();
       }
     } catch (error) {

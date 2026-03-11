@@ -21,12 +21,14 @@ interface AuthState {
   // State
   user: User | null;
   accessToken: string | null;
+  userId: string | null;
+  isProfileCompleted: boolean;
 
   // Computed
   isAuthenticated: boolean;
 
   // Actions
-  setTokens: (accessToken: string, refreshToken: string, user: User) => void;
+  setTokens: (accessToken: string, refreshToken: string, userId: string, isProfileCompleted: boolean) => void;
   setUser: (user: User) => void;
   logout: () => void;
   getAccessToken: () => string | null;
@@ -78,23 +80,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   // Initial state
   user: null,
   accessToken: null,
+  userId: null,
+  isProfileCompleted: false,
   isAuthenticated: false,
 
   // Actions
-  setTokens: (accessToken: string, refreshToken: string, user: User) => {
+  setTokens: (accessToken: string, refreshToken: string, userId: string, isProfileCompleted: boolean) => {
     // Store refreshToken in localStorage
     setStoredRefreshToken(refreshToken);
 
     // Update state
     set({
       accessToken,
-      user,
+      userId,
+      isProfileCompleted,
       isAuthenticated: true,
     });
   },
 
   setUser: (user: User) => {
-    set({ user });
+    set({
+      user,
+      isProfileCompleted: user.isProfileCompleted ?? false,
+    });
   },
 
   logout: () => {
@@ -105,6 +113,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({
       user: null,
       accessToken: null,
+      userId: null,
+      isProfileCompleted: false,
       isAuthenticated: false,
     });
   },

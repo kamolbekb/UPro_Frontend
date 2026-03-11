@@ -4,11 +4,11 @@ import { sendOtp } from '../api/authApi';
 import type { SendOtpResponse } from '../types/auth.types';
 
 /**
- * Hook for sending OTP to user's phone number
+ * Hook for sending OTP to user's email
  *
  * Handles the first step of authentication:
- * 1. User enters phone number
- * 2. Backend sends OTP via SMS
+ * 1. User enters email
+ * 2. Backend sends OTP via email
  * 3. User is shown OTP verification form
  *
  * Success callback typically navigates to OTP verification page.
@@ -17,9 +17,9 @@ import type { SendOtpResponse } from '../types/auth.types';
  * ```tsx
  * const login = useLogin();
  *
- * const handleSubmit = (phoneNumber: string) => {
- *   login.mutate(phoneNumber, {
- *     onSuccess: () => navigate('/login/verify', { state: { phoneNumber } })
+ * const handleSubmit = (email: string) => {
+ *   login.mutate(email, {
+ *     onSuccess: () => navigate('/login/verify', { state: { email } })
  *   });
  * };
  * ```
@@ -27,15 +27,10 @@ import type { SendOtpResponse } from '../types/auth.types';
 export function useLogin() {
   return useMutation<SendOtpResponse, Error, string>({
     mutationFn: sendOtp,
-    onSuccess: (data) => {
-      // Show success toast with OTP expiry information
-      const expiryDate = new Date(data.expiresAt);
-      const minutes = Math.ceil(
-        (expiryDate.getTime() - Date.now()) / (1000 * 60)
-      );
-
+    onSuccess: () => {
+      // Show success toast
       toast.success(
-        `OTP sent successfully! Code expires in ${minutes} minute${minutes !== 1 ? 's' : ''}.`,
+        'OTP sent successfully! Check your email for the verification code.',
         { duration: 4000 }
       );
     },

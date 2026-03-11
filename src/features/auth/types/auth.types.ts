@@ -9,54 +9,58 @@
  */
 export interface User {
   id: string;
-  phoneNumber: string;
+  email: string;
+  code?: string;
   firstName?: string | null;
   lastName?: string | null;
+  fullName?: string | null;
   image?: string | null;
-  birthDate?: string | null;
-  isExecutor: boolean;
-  createdAt: string;
+  role?: number;
+  isProfileCompleted?: boolean;
 }
 
 /**
  * Authenticated user with tokens
  */
 export interface AuthenticatedUser {
-  user: User;
+  id: string;
   accessToken: string;
   refreshToken: string;
+  isProfileCompleted: boolean;
 }
 
 /**
  * Request body for sending OTP
  */
 export interface SendOtpRequest {
-  phoneNumber: string;
+  email: string;
 }
 
 /**
- * Response from send OTP endpoint
+ * Response from send OTP endpoint (InitiateLogin)
  */
 export interface SendOtpResponse {
-  expiresAt: string; // ISO timestamp when OTP expires
-  message: string;
+  succeeded: boolean;
+  result: boolean;
+  errors: string[];
 }
 
 /**
  * Request body for verifying OTP
  */
 export interface VerifyOtpRequest {
-  phoneNumber: string;
-  code: string;
+  email: string;
+  otpCode: string;
 }
 
 /**
  * Response from verify OTP endpoint
  */
 export interface VerifyOtpResponse {
-  user: User;
+  id: string;
   accessToken: string;
   refreshToken: string;
+  isProfileCompleted: boolean;
 }
 
 /**
@@ -72,6 +76,7 @@ export interface RefreshTokenRequest {
 export interface RefreshTokenResponse {
   accessToken: string;
   refreshToken: string;
+  isProfileCompleted?: boolean;
 }
 
 /**
@@ -81,7 +86,8 @@ export interface AuthState {
   user: User | null;
   accessToken: string | null;
   isAuthenticated: boolean;
-  setTokens: (accessToken: string, refreshToken: string, user: User) => void;
+  isProfileCompleted: boolean;
+  setTokens: (accessToken: string, refreshToken: string, userId: string, isProfileCompleted: boolean) => void;
   setUser: (user: User) => void;
   logout: () => void;
   getAccessToken: () => string | null;

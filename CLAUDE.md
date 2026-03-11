@@ -203,11 +203,12 @@ npm run test:coverage    # With coverage report
 ## Important Notes
 
 ### Authentication
-- Phone-based OTP flow (2 steps: phone → OTP verification)
+- Email-based OTP flow (2 steps: email → OTP verification)
 - Access token in memory, refresh token in localStorage
 - Auto-refresh before expiration
-- Protected routes redirect to login with return URL
+- Protected routes redirect to login with return URL (using ProtectedRoute component)
 - Token attached via axios interceptor
+- Auth state includes: userId, accessToken, isProfileCompleted
 
 ### Real-Time Chat
 - SignalR connection in `SignalRProvider`

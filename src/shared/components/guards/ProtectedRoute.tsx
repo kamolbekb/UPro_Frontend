@@ -7,26 +7,31 @@ interface ProtectedRouteProps {
 }
 
 /**
- * Route guard that redirects unauthenticated users to login
+ * ProtectedRoute - Authentication guard component
  *
- * Preserves the intended destination in location state for post-login redirect.
+ * Redirects unauthenticated users to login page
+ * with return URL to come back after login
  *
- * Usage:
+ * @example
  * ```tsx
- * <Route path="/tasks" element={
- *   <ProtectedRoute>
- *     <TasksPage />
- *   </ProtectedRoute>
- * } />
+ * <ProtectedRoute>
+ *   <CreateTaskPage />
+ * </ProtectedRoute>
  * ```
  */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const location = useLocation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const location = useLocation();
 
   if (!isAuthenticated) {
-    // Redirect to login, preserving the intended destination
-    return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />;
+    // Redirect to login with return URL
+    return (
+      <Navigate
+        to={ROUTES.LOGIN}
+        state={{ returnUrl: location.pathname }}
+        replace
+      />
+    );
   }
 
   return <>{children}</>;
