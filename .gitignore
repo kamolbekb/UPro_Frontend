@@ -45,3 +45,4 @@ vite.config.ts.timestamp-*
 
 # TypeScript
 *.tsbuildinfo
+.git-credentials
