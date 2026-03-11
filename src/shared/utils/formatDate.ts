@@ -41,9 +41,19 @@ export function formatDateTime(date: string | Date): string {
  * formatRelativeTime('2024-03-10T10:00:00') // "2 hours ago"
  * formatRelativeTime(new Date(), false) // "less than a minute"
  */
-export function formatRelativeTime(date: string | Date, addSuffix = true): string {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date;
-  return formatDistanceToNow(dateObj, { addSuffix });
+export function formatRelativeTime(date: string | Date | null | undefined, addSuffix = true): string {
+  if (!date) return 'Unknown';
+
+  try {
+    const dateObj = typeof date === 'string' ? parseISO(date) : date;
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) {
+      return 'Unknown';
+    }
+    return formatDistanceToNow(dateObj, { addSuffix });
+  } catch {
+    return 'Unknown';
+  }
 }
 
 /**

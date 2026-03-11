@@ -3,38 +3,54 @@ import { ENDPOINTS } from './endpoints';
 import type { Category } from '@features/tasks/types/task.types';
 
 /**
- * Get all categories with hierarchical structure
+ * Get parent categories
  *
- * Returns categories with their subcategories nested in a tree structure.
- * Categories with parentId=null are root categories.
+ * Returns top-level categories only.
  *
- * @returns Hierarchical category list
+ * @returns Parent category list
  */
-export async function getCategories(): Promise<Category[]> {
-  const response = await apiClient.get<Category[]>(ENDPOINTS.categories.list);
+export async function getParentCategories(): Promise<Category[]> {
+  const response = await apiClient.get<Category[]>(ENDPOINTS.categories.parents);
   return response.data;
 }
 
 /**
- * Get category by ID
+ * Get subcategories
  *
- * @param id - Category UUID
- * @returns Category with its subcategories
+ * @param parentId - Optional parent category ID to filter by
+ * @param limit - Optional limit for number of results
+ * @returns Subcategory list
  */
-export async function getCategoryById(id: string): Promise<Category> {
-  const response = await apiClient.get<Category>(ENDPOINTS.categories.byId(id));
+export async function getSubcategories(
+  parentId?: string,
+  limit?: number
+): Promise<Category[]> {
+  const params = new URLSearchParams();
+  if (parentId) params.append('parentId', parentId);
+  if (limit) params.append('limit', limit.toString());
+
+  const url = params.toString()
+    ? `${ENDPOINTS.categories.subcategories}?${params.toString()}`
+    : ENDPOINTS.categories.subcategories;
+
+  const response = await apiClient.get<Category[]>(url);
   return response.data;
 }
 
 /**
- * Search categories by name
+ * Search subcategories by name
  *
  * @param searchTerm - Search keyword
- * @returns Matching categories
+ * @returns Matching subcategories
  */
-export async function searchCategories(searchTerm: string): Promise<Category[]> {
-  const params = new URLSearchParams({ searchTerm });
-  const url = `${ENDPOINTS.categories.search}?${params.toString()}`;
+export async function searchCategories(searchTerm?: string): Promise<Category[]> {
+  const params = new URLSearchParams();
+  if (searchTerm) params.append('searchTerm', searchTerm);
+
+  const url = params.toString()
+    ? `${ENDPOINTS.categories.search}?${params.toString()}`
+    : ENDPOINTS.categories.search;
+
   const response = await apiClient.get<Category[]>(url);
   return response.data;
 }

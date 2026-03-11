@@ -68,8 +68,64 @@ export async function getAll(filters?: TaskFilters): Promise<PaginatedResult<Tas
   }
 
   const url = `${ENDPOINTS.tasks.search}?${params.toString()}`;
-  const response = await apiClient.get<PaginatedResult<Task>>(url);
-  return response.data;
+
+  // Backend returns a simple array with different field names
+  // We need to transform it to match the frontend Task type
+  interface BackendTaskDto {
+    id: string;
+    code: string;
+    title: string;
+    locationTypeName: string;
+    districtName: string;
+    startDate: string | null;
+    budget: number;
+    image: string | null;
+    isArchived: boolean;
+  }
+
+  const response = await apiClient.get<BackendTaskDto[]>(url);
+
+  // Transform backend DTOs to frontend Task type
+  const tasks: Task[] = response.data.map((dto) => ({
+    id: dto.id,
+    title: dto.title,
+    description: '', // Not provided by backend list endpoint
+    categoryId: '', // Not provided
+    categoryName: '', // Not provided
+    subCategoryId: null,
+    subCategoryName: null,
+    budgetTypeId: '', // Not provided
+    budgetTypeName: 'so\'m', // Default currency
+    budgetAmount: dto.budget || 0,
+    serviceLocationId: '', // Not provided
+    regionName: '', // Not provided
+    districtName: dto.districtName || '',
+    images: dto.image ? [dto.image] : [],
+    status: dto.isArchived ? 4 : 1, // Archived = 4, Published = 1
+    applicationCount: 0, // Not provided
+    isBookmarked: false, // Not provided
+    createdBy: '', // Not provided
+    createdAt: dto.startDate || new Date().toISOString(),
+    modifiedAt: null,
+  }));
+
+  // Create a pagination wrapper
+  // Since backend doesn't provide pagination metadata, we assume:
+  // - If we got fewer tasks than the limit, there are no more pages
+  // - Otherwise, there might be more
+  const page = filters?.page ?? 1;
+  const limit = filters?.limit ?? 10;
+  const hasMore = tasks.length === limit;
+
+  return {
+    items: tasks,
+    totalCount: tasks.length, // We don't know the actual total
+    pageNumber: page,
+    pageSize: limit,
+    totalPages: hasMore ? page + 1 : page, // Estimate
+    hasNextPage: hasMore,
+    hasPreviousPage: page > 1,
+  };
 }
 
 /**

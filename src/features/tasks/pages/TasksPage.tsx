@@ -67,7 +67,8 @@ export function TasksPage() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Flatten all pages into a single task list
-  const allTasks = data?.pages.flatMap((page) => page.items) ?? [];
+  // Filter out any undefined/null values to prevent runtime errors
+  const allTasks = data?.pages.flatMap((page) => page.items ?? []).filter(Boolean) ?? [];
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
   const handleDistrictChange = (_districtId: string | undefined) => {

@@ -19,19 +19,19 @@ import type {
  */
 
 /**
- * Send OTP to user's phone number
+ * Send OTP to user's email/phone
  *
- * @param phoneNumber - Phone number in E.164 format (+998XXXXXXXXX)
+ * @param email - User email or phone number
  * @returns OTP expiry time and success message
  *
  * @example
- * const result = await sendOtp('+998901234567');
+ * const result = await sendOtp('user@example.com');
  * // { expiresAt: '2024-03-10T12:30:00Z', message: 'OTP sent successfully' }
  */
 export async function sendOtp(
-  phoneNumber: string
+  email: string
 ): Promise<SendOtpResponse> {
-  const request: SendOtpRequest = { phoneNumber };
+  const request = { email };
 
   const response = await apiClient.post<SendOtpResponse>(
     ENDPOINTS.auth.sendOtp,
@@ -44,24 +44,22 @@ export async function sendOtp(
 /**
  * Verify OTP code and authenticate user
  *
- * @param phoneNumber - Phone number in E.164 format
- * @param code - 6-digit OTP code
+ * @param email - User email or phone number
+ * @param otpCode - 6-digit OTP code
  * @returns User data and authentication tokens
  *
  * @example
- * const result = await verifyOtp('+998901234567', '123456');
+ * const result = await verifyOtp('user@example.com', '123456');
  * // { user: {...}, accessToken: '...', refreshToken: '...' }
  */
 export async function verifyOtp(
-  phoneNumber: string,
-  code: string
+  email: string,
+  otpCode: string
 ): Promise<VerifyOtpResponse> {
-  const request: VerifyOtpRequest = { phoneNumber, code };
+  const params = new URLSearchParams({ email, otpCode });
+  const url = `${ENDPOINTS.auth.verifyOtp}?${params.toString()}`;
 
-  const response = await apiClient.post<VerifyOtpResponse>(
-    ENDPOINTS.auth.verifyOtp,
-    request
-  );
+  const response = await apiClient.post<VerifyOtpResponse>(url);
 
   return response.data;
 }
@@ -82,7 +80,7 @@ export async function verifyOtp(
 export async function refreshToken(
   refreshTokenValue: string
 ): Promise<RefreshTokenResponse> {
-  const request: RefreshTokenRequest = { refreshToken: refreshTokenValue };
+  const request = { refreshToken: refreshTokenValue };
 
   const response = await apiClient.post<RefreshTokenResponse>(
     ENDPOINTS.auth.refresh,

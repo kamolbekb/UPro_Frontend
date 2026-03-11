@@ -30,7 +30,7 @@ export function TaskCard({ task, onBookmarkToggle }: TaskCardProps) {
     <Link to={ROUTES.TASK_DETAIL(task.id)}>
       <Card className="overflow-hidden transition-shadow hover:shadow-lg">
         {/* Image */}
-        {task.images.length > 0 && (
+        {task.images && task.images.length > 0 && (
           <div className="relative h-48 w-full overflow-hidden bg-gray-100">
             <img
               src={task.images[0]}

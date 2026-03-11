@@ -15,25 +15,14 @@ export async function getRegions(): Promise<Region[]> {
 }
 
 /**
- * Get region by ID with districts
- *
- * @param id - Region UUID
- * @returns Region with its districts
- */
-export async function getRegionById(id: string): Promise<Region> {
-  const response = await apiClient.get<Region>(ENDPOINTS.regions.byId(id));
-  return response.data;
-}
-
-/**
  * Get districts for a specific region
  *
  * @param regionId - Region UUID
  * @returns List of districts in the region
  */
 export async function getDistricts(regionId: string): Promise<District[]> {
-  const response = await apiClient.get<District[]>(
-    ENDPOINTS.regions.districts(regionId)
-  );
+  const params = new URLSearchParams({ regionId });
+  const url = `${ENDPOINTS.regions.districts}?${params.toString()}`;
+  const response = await apiClient.get<District[]>(url);
   return response.data;
 }

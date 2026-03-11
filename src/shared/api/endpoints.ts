@@ -7,42 +7,48 @@
 
 export const ENDPOINTS = {
   /**
-   * Authentication endpoints
+   * Authentication endpoints (via UsersController)
    */
   auth: {
-    sendOtp: '/api/Auth/send-otp',
-    verifyOtp: '/api/Auth/verify-otp',
-    refresh: '/api/Auth/refresh',
+    sendOtp: '/api/Users/InitiateLogin',
+    verifyOtp: '/api/Users/VerifyOtp',
+    refresh: '/api/Users/RefreshToken',
   },
 
   /**
    * Task/Order endpoints
    */
   tasks: {
-    list: '/api/OrderTask',
+    list: '/api/OrderTasks',
     search: '/api/OrderTasks/search',
-    byId: (id: string) => `/api/OrderTask/${id}`,
-    create: '/api/OrderTask',
-    update: (id: string) => `/api/OrderTask/${id}`,
-    delete: (id: string) => `/api/OrderTask/${id}`,
-    saved: '/api/OrderTask/saved',
-    save: (id: string) => `/api/OrderTask/${id}/save`,
-    unsave: (id: string) => `/api/OrderTask/${id}/unsave`,
+    byId: (id: string) => `/api/OrderTasks/${id}`,
+    create: '/api/OrderTasks/create',
+    update: (id: string) => `/api/OrderTasks/${id}`,
+    delete: (id: string) => `/api/OrderTasks/${id}`,
+    archive: (id: string) => `/api/OrderTasks/archive/${id}`,
+  },
+
+  /**
+   * Saved Tasks endpoints
+   */
+  savedTasks: {
+    list: '/api/SavedTasks',
+    save: (taskId: string) => `/api/SavedTasks/${taskId}`,
+    unsave: (taskId: string) => `/api/SavedTasks/${taskId}`,
+    isSaved: (taskId: string) => `/api/SavedTasks/is-saved/${taskId}`,
+    removeAll: '/api/SavedTasks',
   },
 
   /**
    * Executor endpoints
    */
   executors: {
-    list: '/api/Executor',
-    profile: (id: string) => `/api/Executor/${id}`,
-    become: '/api/Executor/become',
-    myProfile: '/api/Executor/me',
-    updateProfile: '/api/Executor/profile',
-    deleteProfile: '/api/Executor/profile',
-    languages: '/api/Executor/languages',
-    educationTypes: '/api/Executor/education-types',
-    languageLevels: '/api/Executor/language-levels',
+    list: '/api/Executors/GetExecutorsList',
+    profile: (id: string) => `/api/Executors/${id}`,
+    become: '/api/Executors/BecomeExecutor',
+    myProfile: '/api/Executors/profile',
+    updateProfile: '/api/Executors/profile',
+    deleteProfile: '/api/Executors/profile',
   },
 
   /**
@@ -62,11 +68,11 @@ export const ENDPOINTS = {
    * Notification endpoints
    */
   notifications: {
-    list: '/api/Notification',
-    markRead: (id: string) => `/api/Notification/${id}/read`,
-    markAllRead: '/api/Notification/read-all',
-    unreadCount: '/api/Notification/unread-count',
-    registerToken: '/api/Notification/register-token',
+    list: '/api/Notifications/my-notifications',
+    markRead: (id: string) => `/api/Notifications/${id}/mark-read`,
+    markAllRead: '/api/Notifications/mark-all-read',
+    unreadCount: '/api/Notifications/unread-count',
+    registerToken: '/api/Notifications/register-token',
   },
 
   /**
@@ -90,9 +96,9 @@ export const ENDPOINTS = {
    * Category endpoints
    */
   categories: {
-    list: '/api/Categories',
-    byId: (id: string) => `/api/Categories/${id}`,
-    search: '/api/Categories/search',
+    parents: '/api/Categories/parents',
+    subcategories: '/api/Categories/subcategories',
+    search: '/api/Categories/subcategories/search',
   },
 
   /**
@@ -100,8 +106,7 @@ export const ENDPOINTS = {
    */
   regions: {
     list: '/api/Regions',
-    byId: (id: string) => `/api/Regions/${id}`,
-    districts: (regionId: string) => `/api/Regions/${regionId}/districts`,
+    districts: '/api/Regions/GetDistrictsByRegionId',
   },
 
   /**
