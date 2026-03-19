@@ -123,7 +123,7 @@ export function OtpInput({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div className="flex gap-2 justify-center">
+      <div className="flex gap-3 justify-center">
         {otp.map((digit, index) => (
           <Input
             key={index}
@@ -137,7 +137,8 @@ export function OtpInput({
             onPaste={handlePaste}
             disabled={disabled}
             className={cn(
-              'w-12 h-12 text-center text-lg font-semibold',
+              'w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-muted-foreground/25 bg-white shadow-sm focus-visible:border-primary focus-visible:ring-primary',
+              digit && 'border-primary/40 bg-primary/5',
               error && 'border-destructive focus-visible:ring-destructive'
             )}
             aria-label={`Digit ${index + 1}`}
