@@ -196,7 +196,7 @@ export async function getById(id: string): Promise<TaskDetail> {
     status: dto.isArchived ? 4 : 1,
     applicationCount: 0,
     isBookmarked: dto.isSaved ?? false,
-    canApply: dto.canApply ?? false,
+    canApply: dto.canApply ?? true,
     createdBy: dto.userId ?? '',
     createdAt: dto.createdAt ?? '',
     modifiedAt: null,

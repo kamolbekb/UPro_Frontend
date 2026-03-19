@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { User, Camera, Trash2, Edit, Shield, Mail } from 'lucide-react';
+import { User, Camera, Trash2, Edit, Shield, Mail, Briefcase } from 'lucide-react';
 import { Button } from '@shared/components/ui/button';
 import { Input } from '@shared/components/ui/input';
 import { Label } from '@shared/components/ui/label';
@@ -192,6 +192,31 @@ export function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Become Executor CTA */}
+        {!profile.isExecutor && (
+          <div className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-5">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Briefcase className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold">Become an Executor</p>
+                  <p className="text-sm text-muted-foreground">
+                    Start earning by completing tasks from clients
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => navigate(ROUTES.EXECUTOR_BECOME)}
+                className="bg-gradient-primary hover:opacity-90"
+              >
+                Get Started
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Profile Details / Edit Form */}
         <div className="mb-6 rounded-xl border bg-card">

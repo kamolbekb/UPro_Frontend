@@ -73,13 +73,18 @@ export async function rejectApplication(applicationId: string): Promise<boolean>
  * Get tasks created by current user
  * (Task creator dashboard)
  *
- * @returns List of user's created tasks
+ * @returns List of user's created tasks (empty array if none or error)
  */
 export async function getCreatorTasks(): Promise<CreatorTaskItem[]> {
-  const response = await apiClient.get<CreatorTaskItem[]>(
-    ENDPOINTS.applications.creatorTasks
-  );
-  return response.data;
+  try {
+    const response = await apiClient.get<CreatorTaskItem[]>(
+      ENDPOINTS.applications.creatorTasks
+    );
+    return Array.isArray(response.data) ? response.data : [];
+  } catch {
+    // Return empty array for non-auth errors (e.g. user has no tasks)
+    return [];
+  }
 }
 
 /**
@@ -87,14 +92,19 @@ export async function getCreatorTasks(): Promise<CreatorTaskItem[]> {
  * (Executor dashboard)
  *
  * @param status - Filter by application status (0=all)
- * @returns List of applied tasks
+ * @returns List of applied tasks (empty array if none or error)
  */
 export async function getExecutorTasks(
   status?: number
 ): Promise<ExecutorTaskItem[]> {
-  const params = status !== undefined && status !== 0 ? `?status=${status}` : '';
-  const response = await apiClient.get<ExecutorTaskItem[]>(
-    `${ENDPOINTS.applications.executorTasks}${params}`
-  );
-  return response.data;
+  try {
+    const params = status !== undefined && status !== 0 ? `?status=${status}` : '';
+    const response = await apiClient.get<ExecutorTaskItem[]>(
+      `${ENDPOINTS.applications.executorTasks}${params}`
+    );
+    return Array.isArray(response.data) ? response.data : [];
+  } catch {
+    // Return empty array for non-auth errors (e.g. user has no applications)
+    return [];
+  }
 }
