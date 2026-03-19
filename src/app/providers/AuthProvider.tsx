@@ -46,6 +46,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const getRefreshToken = useAuthStore((state) => state.getRefreshToken);
   const getAccessToken = useAuthStore((state) => state.getAccessToken);
   const setTokens = useAuthStore((state) => state.setTokens);
+  const setHydrated = useAuthStore((state) => state.setHydrated);
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
 
@@ -104,14 +105,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   /**
    * Hydrate auth state on app boot
+   * Marks hydration complete after attempt finishes (success or failure)
    */
   useEffect(() => {
     const storedRefreshToken = getRefreshToken();
 
     if (storedRefreshToken && !getAccessToken()) {
       // Refresh token exists but no access token
-      // Attempt to refresh to restore session
-      attemptRefresh();
+      // Attempt to refresh to restore session, then mark hydrated
+      attemptRefresh().then(() => setHydrated());
+    } else {
+      // No refresh token or already have access token — hydration done immediately
+      setHydrated();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

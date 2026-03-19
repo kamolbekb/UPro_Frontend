@@ -23,6 +23,7 @@ interface AuthState {
   accessToken: string | null;
   userId: string | null;
   isProfileCompleted: boolean;
+  isHydrated: boolean;
 
   // Computed
   isAuthenticated: boolean;
@@ -31,6 +32,7 @@ interface AuthState {
   setTokens: (accessToken: string, refreshToken: string, userId: string, isProfileCompleted: boolean) => void;
   setUser: (user: User) => void;
   setProfileCompleted: (completed: boolean) => void;
+  setHydrated: () => void;
   logout: () => void;
   getAccessToken: () => string | null;
   getRefreshToken: () => string | null;
@@ -84,6 +86,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   userId: null,
   isProfileCompleted: false,
   isAuthenticated: false,
+  isHydrated: false,
 
   // Actions
   setTokens: (accessToken: string, refreshToken: string, userId: string, isProfileCompleted: boolean) => {
@@ -108,6 +111,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setProfileCompleted: (completed: boolean) => {
     set({ isProfileCompleted: completed });
+  },
+
+  setHydrated: () => {
+    set({ isHydrated: true });
   },
 
   logout: () => {
