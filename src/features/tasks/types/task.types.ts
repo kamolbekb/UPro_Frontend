@@ -107,6 +107,7 @@ export interface Task {
  * Task with client details (detail view)
  */
 export interface TaskDetail extends Task {
+  canApply: boolean;
   client: {
     id: string;
     firstName: string;

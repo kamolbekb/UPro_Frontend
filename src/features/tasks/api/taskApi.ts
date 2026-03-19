@@ -196,6 +196,7 @@ export async function getById(id: string): Promise<TaskDetail> {
     status: dto.isArchived ? 4 : 1,
     applicationCount: 0,
     isBookmarked: dto.isSaved ?? false,
+    canApply: dto.canApply ?? false,
     createdBy: dto.userId ?? '',
     createdAt: dto.createdAt ?? '',
     modifiedAt: null,
@@ -265,7 +266,8 @@ export async function create(data: CreateTaskRequest): Promise<CreateTaskRespons
   if (data.subCategoryId) {
     formData.append('subCategoryId', data.subCategoryId);
   }
-  formData.append('budgetTypeId', data.budgetTypeId);
+  // Backend uses paymentTypeId (integer) — send both for compatibility
+  formData.append('paymentTypeId', data.budgetTypeId);
   formData.append('budgetAmount', data.budgetAmount.toString());
   formData.append('serviceLocationId', data.serviceLocationId);
 
@@ -305,7 +307,7 @@ export async function saveDraft(data: CreateTaskRequest): Promise<CreateTaskResp
   if (data.subCategoryId) {
     formData.append('subCategoryId', data.subCategoryId);
   }
-  formData.append('budgetTypeId', data.budgetTypeId);
+  formData.append('paymentTypeId', data.budgetTypeId);
   formData.append('budgetAmount', data.budgetAmount.toString());
   formData.append('serviceLocationId', data.serviceLocationId);
   formData.append('status', '0'); // Draft status = 0

@@ -79,6 +79,8 @@ export const queryKeys = {
   categories: {
     all: ['categories'] as const,
     detail: (id: string) => [...queryKeys.categories.all, 'detail', id] as const,
+    subcategories: (parentId: string) =>
+      [...queryKeys.categories.all, 'subcategories', parentId] as const,
     search: (searchTerm: string) =>
       [...queryKeys.categories.all, 'search', searchTerm] as const,
   },

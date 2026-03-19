@@ -1,10 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, DollarSign, Users, ArrowLeft, Tag } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { Button } from '@shared/components/ui/button';
 import { LoadingSpinner } from '@shared/components/feedback/LoadingSpinner';
 import { EmptyState } from '@shared/components/feedback/EmptyState';
 import { TaskStatusBadge } from '../components/TaskStatusBadge';
 import { useTaskDetail } from '../hooks/useTaskDetail';
+import { useApplyForTask } from '@features/applications/hooks/useApplications';
+import { useAuthStore } from '@features/auth/hooks/useAuthStore';
 import { formatCurrency } from '@shared/utils/formatCurrency';
 import { formatDate } from '@shared/utils/formatDate';
 import { ROUTES } from '@shared/constants/routes';
@@ -17,6 +20,18 @@ export function TaskDetailPage() {
   const navigate = useNavigate();
 
   const { data: task, isLoading, isError, error } = useTaskDetail(id ?? '');
+  const applyMutation = useApplyForTask();
+  const isAuthenticated = useAuthStore((s) => !!s.accessToken);
+
+  const handleApply = () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to apply for tasks');
+      navigate(ROUTES.LOGIN);
+      return;
+    }
+    if (!id) return;
+    applyMutation.mutate({ taskId: id });
+  };
 
   if (isLoading) {
     return (
@@ -182,8 +197,26 @@ export function TaskDetailPage() {
               <p className="mb-4 text-sm text-muted-foreground">
                 Submit a proposal to work on this task
               </p>
-              <Button className="w-full bg-gradient-primary hover:opacity-90" size="lg">
-                Apply Now
+              <Button
+                className="w-full bg-gradient-primary hover:opacity-90"
+                size="lg"
+                onClick={handleApply}
+                disabled={applyMutation.isPending || (!task.canApply && isAuthenticated)}
+              >
+                {applyMutation.isPending ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Applying...
+                  </>
+                ) : applyMutation.isSuccess ? (
+                  'Applied!'
+                ) : !isAuthenticated ? (
+                  'Sign in to Apply'
+                ) : !task.canApply ? (
+                  'Already Applied'
+                ) : (
+                  'Apply Now'
+                )}
               </Button>
             </div>
 

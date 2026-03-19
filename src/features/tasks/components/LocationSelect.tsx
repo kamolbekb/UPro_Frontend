@@ -1,4 +1,7 @@
 import { useRegions } from '@shared/hooks/useRegions';
+import { useQuery } from '@tanstack/react-query';
+import { getDistricts } from '@shared/api/locationApi';
+import { queryKeys } from '@shared/constants/queryKeys';
 import {
   Select,
   SelectContent,
@@ -20,18 +23,8 @@ interface LocationSelectProps {
 /**
  * Cascading location selector with region → district dropdowns
  *
- * Displays regions first, then shows districts for the selected region.
- * Both region and district selections are required.
- *
- * Usage:
- * ```tsx
- * <LocationSelect
- *   regionId={regionId}
- *   districtId={districtId}
- *   onRegionChange={setRegionId}
- *   onDistrictChange={setDistrictId}
- * />
- * ```
+ * Fetches regions on mount, then fetches districts separately
+ * when a region is selected.
  */
 export function LocationSelect({
   regionId,
@@ -42,18 +35,16 @@ export function LocationSelect({
 }: LocationSelectProps) {
   const { data: regions, isLoading } = useRegions();
 
-  // Get selected region
-  const selectedRegion = regions?.find((region) => region.id === regionId);
+  // Fetch districts when a region is selected
+  const { data: districts, isLoading: loadingDistricts } = useQuery({
+    queryKey: queryKeys.regions.districts(regionId ?? ''),
+    queryFn: () => getDistricts(regionId!),
+    enabled: !!regionId,
+    staleTime: 1000 * 60 * 10,
+  });
 
-  // Get districts for selected region
-  const districts = selectedRegion?.districts ?? [];
-
-  /**
-   * Handle region selection
-   */
   const handleRegionChange = (value: string) => {
     onRegionChange(value);
-    // Reset district when region changes
     onDistrictChange('');
   };
 
@@ -61,7 +52,7 @@ export function LocationSelect({
     return (
       <div className="flex items-center gap-2">
         <LoadingSpinner />
-        <span className="text-sm text-gray-500">Loading locations...</span>
+        <span className="text-sm text-muted-foreground">Loading locations...</span>
       </div>
     );
   }
@@ -94,18 +85,25 @@ export function LocationSelect({
           <Label htmlFor="district">
             District <span className="text-red-500">*</span>
           </Label>
-          <Select value={districtId ?? ''} onValueChange={onDistrictChange}>
-            <SelectTrigger id="district" className={error ? 'border-red-500' : ''}>
-              <SelectValue placeholder="Select a district" />
-            </SelectTrigger>
-            <SelectContent>
-              {districts.map((district) => (
-                <SelectItem key={district.id} value={district.id}>
-                  {district.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {loadingDistricts ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner />
+              <span className="text-sm text-muted-foreground">Loading districts...</span>
+            </div>
+          ) : (
+            <Select value={districtId ?? ''} onValueChange={onDistrictChange}>
+              <SelectTrigger id="district" className={error ? 'border-red-500' : ''}>
+                <SelectValue placeholder="Select a district" />
+              </SelectTrigger>
+              <SelectContent>
+                {(districts ?? []).map((district) => (
+                  <SelectItem key={district.id} value={district.id}>
+                    {district.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       )}
     </div>

@@ -107,86 +107,94 @@ export function ExecutorProfilePage() {
             </div>
 
             {/* Service Fields */}
-            <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-3 text-base font-semibold">Service Fields</h2>
-              <div className="flex flex-wrap gap-2">
-                {executor.serviceFields.map((field, index) => (
-                  <span
-                    key={index}
-                    className="rounded-full bg-primary/5 px-3 py-1 text-sm font-medium text-primary"
-                  >
-                    {field}
-                  </span>
-                ))}
+            {(executor.serviceFields?.length ?? 0) > 0 && (
+              <div className="rounded-xl border bg-card p-6">
+                <h2 className="mb-3 text-base font-semibold">Service Fields</h2>
+                <div className="flex flex-wrap gap-2">
+                  {executor.serviceFields.map((field, index) => (
+                    <span
+                      key={index}
+                      className="rounded-full bg-primary/5 px-3 py-1 text-sm font-medium text-primary"
+                    >
+                      {field}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Right Column: Experience, Education, Languages */}
           <div className="lg:col-span-2 space-y-6">
             {/* Work Experience */}
-            <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                  <Briefcase className="h-4 w-4 text-primary" />
-                </div>
-                Work Experience
-              </h2>
-              <div className="space-y-4">
-                {executor.workExperience.map((exp, index) => (
-                  <div key={index} className="rounded-lg border-l-2 border-primary bg-muted/30 py-3 pl-4 pr-3">
-                    <h3 className="font-semibold">{exp.position}</h3>
-                    <p className="text-sm text-muted-foreground">{exp.companyName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {exp.startDate} - {exp.endDate ?? 'Present'}
-                    </p>
-                    {exp.details && <p className="mt-2 text-sm leading-relaxed">{exp.details}</p>}
+            {(executor.workExperience?.length ?? 0) > 0 && (
+              <div className="rounded-xl border bg-card p-6">
+                <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                    <Briefcase className="h-4 w-4 text-primary" />
                   </div>
-                ))}
+                  Work Experience
+                </h2>
+                <div className="space-y-4">
+                  {executor.workExperience.map((exp, index) => (
+                    <div key={index} className="rounded-lg border-l-2 border-primary bg-muted/30 py-3 pl-4 pr-3">
+                      <h3 className="font-semibold">{exp.position}</h3>
+                      <p className="text-sm text-muted-foreground">{exp.companyName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {exp.startDate} - {exp.endDate ?? 'Present'}
+                      </p>
+                      {exp.details && <p className="mt-2 text-sm leading-relaxed">{exp.details}</p>}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Education */}
-            <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                  <GraduationCap className="h-4 w-4 text-primary" />
-                </div>
-                Education
-              </h2>
-              <div className="space-y-4">
-                {executor.education.map((edu, index) => (
-                  <div key={index} className="rounded-lg border-l-2 border-primary bg-muted/30 py-3 pl-4 pr-3">
-                    <h3 className="font-semibold">{edu.fieldOfStudy}</h3>
-                    <p className="text-sm text-muted-foreground">{edu.schoolName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {edu.educationTypeName} &middot; {edu.startDate} - {edu.endDate ?? 'Present'}
-                    </p>
-                    {edu.details && <p className="mt-2 text-sm leading-relaxed">{edu.details}</p>}
+            {(executor.education?.length ?? 0) > 0 && (
+              <div className="rounded-xl border bg-card p-6">
+                <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                    <GraduationCap className="h-4 w-4 text-primary" />
                   </div>
-                ))}
+                  Education
+                </h2>
+                <div className="space-y-4">
+                  {executor.education.map((edu, index) => (
+                    <div key={index} className="rounded-lg border-l-2 border-primary bg-muted/30 py-3 pl-4 pr-3">
+                      <h3 className="font-semibold">{edu.fieldOfStudy}</h3>
+                      <p className="text-sm text-muted-foreground">{edu.schoolName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {edu.educationTypeName} &middot; {edu.startDate} - {edu.endDate ?? 'Present'}
+                      </p>
+                      {edu.details && <p className="mt-2 text-sm leading-relaxed">{edu.details}</p>}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Languages */}
-            <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                  <Languages className="h-4 w-4 text-primary" />
-                </div>
-                Languages
-              </h2>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {executor.languages.map((lang, index) => (
-                  <div key={index} className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
-                    <span className="font-medium">{lang.languageName}</span>
-                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
-                      Level {lang.proficiencyLevel}
-                    </Badge>
+            {(executor.languages?.length ?? 0) > 0 && (
+              <div className="rounded-xl border bg-card p-6">
+                <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                    <Languages className="h-4 w-4 text-primary" />
                   </div>
-                ))}
+                  Languages
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {executor.languages.map((lang, index) => (
+                    <div key={index} className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
+                      <span className="font-medium">{lang.languageName}</span>
+                      <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                        Level {lang.proficiencyLevel}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
