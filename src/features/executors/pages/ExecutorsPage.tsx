@@ -74,7 +74,7 @@ export function ExecutorsPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredExecutors.map((executor) => {
-            const initials = `${executor.firstName[0]}${executor.lastName[0]}`.toUpperCase();
+            const initials = `${executor.firstName?.[0] ?? ''}${executor.lastName?.[0] ?? ''}`.toUpperCase();
 
             return (
               <div

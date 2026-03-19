@@ -42,7 +42,7 @@ export function ExecutorProfilePage() {
     );
   }
 
-  const initials = `${executor.firstName[0]}${executor.lastName[0]}`.toUpperCase();
+  const initials = `${executor.firstName?.[0] ?? ''}${executor.lastName?.[0] ?? ''}`.toUpperCase();
 
   return (
     <div className="animate-in">

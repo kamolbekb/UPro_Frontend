@@ -144,36 +144,37 @@ export function TaskDetailPage() {
           {/* Right Column: Client Info and Actions */}
           <div className="space-y-6">
             {/* Client Information */}
-            <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 text-lg font-semibold">Client</h2>
-              <div className="flex items-start gap-3">
-                {task.client.image ? (
-                  <img
-                    src={task.client.image}
-                    alt={`${task.client.firstName} ${task.client.lastName}`}
-                    className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/10"
-                  />
-                ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
-                    {task.client.firstName[0]}
-                    {task.client.lastName[0]}
-                  </div>
-                )}
-                <div className="flex-1">
-                  <p className="font-semibold">
-                    {task.client.firstName} {task.client.lastName}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {task.client.completedTasks} tasks completed
-                  </p>
-                  {task.client.rating && (
-                    <p className="text-sm text-muted-foreground">
-                      {task.client.rating.toFixed(1)} rating
-                    </p>
+            {task.client && (
+              <div className="rounded-xl border bg-card p-6">
+                <h2 className="mb-4 text-lg font-semibold">Client</h2>
+                <div className="flex items-start gap-3">
+                  {task.client.image ? (
+                    <img
+                      src={task.client.image}
+                      alt={`${task.client.firstName ?? ''} ${task.client.lastName ?? ''}`}
+                      className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/10"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
+                      {task.client.firstName?.[0]}{task.client.lastName?.[0]}
+                    </div>
                   )}
+                  <div className="flex-1">
+                    <p className="font-semibold">
+                      {task.client.firstName} {task.client.lastName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {task.client.completedTasks ?? 0} tasks completed
+                    </p>
+                    {task.client.rating && (
+                      <p className="text-sm text-muted-foreground">
+                        {task.client.rating.toFixed(1)} rating
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Apply Button */}
             <div className="rounded-xl border bg-card p-6">
