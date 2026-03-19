@@ -1,43 +1,16 @@
-import { useRef, useState, useEffect, KeyboardEvent, ClipboardEvent } from 'react';
-import { Input } from '@/shared/components/ui/input';
+import { useRef, useState, useEffect } from 'react';
 import { cn } from '@/shared/utils/cn';
 
-/**
- * OtpInput component for 6-digit OTP codes
- *
- * Features:
- * - 6 separate input boxes
- * - Auto-focus next input on digit entry
- * - Auto-focus previous input on backspace
- * - Paste support (paste full code into any input)
- * - Auto-submit when all 6 digits entered
- * - Numeric keyboard on mobile
- *
- * @example
- * ```tsx
- * <OtpInput
- *   value={otp}
- *   onChange={setOtp}
- *   onComplete={(code) => verifyOtp(code)}
- *   error={errors.code?.message}
- * />
- * ```
- */
-
 export interface OtpInputProps {
-  /** Current OTP value (6 digits) */
   value: string;
-  /** Change handler - receives updated OTP string */
   onChange: (value: string) => void;
-  /** Called when all 6 digits are entered */
   onComplete?: (code: string) => void;
-  /** Error message to display */
   error?: string;
-  /** Disable all inputs */
   disabled?: boolean;
-  /** Additional CSS classes */
   className?: string;
 }
+
+const OTP_LENGTH = 6;
 
 export function OtpInput({
   value = '',
@@ -47,74 +20,53 @@ export function OtpInput({
   disabled = false,
   className,
 }: OtpInputProps) {
-  const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  /**
-   * Sync internal state with external value prop
-   */
   useEffect(() => {
-    const digits = value.padEnd(6, '').slice(0, 6).split('');
+    const digits = value.padEnd(OTP_LENGTH, '').slice(0, OTP_LENGTH).split('');
     setOtp(digits);
   }, [value]);
 
-  /**
-   * Handle input change for a specific box
-   */
   const handleChange = (index: number, digit: string) => {
-    // Only allow single digits
     const sanitized = digit.replace(/[^0-9]/g, '').slice(-1);
 
-    // Update OTP array
     const newOtp = [...otp];
     newOtp[index] = sanitized;
     setOtp(newOtp);
 
-    // Notify parent
     const otpString = newOtp.join('');
     onChange(otpString);
 
-    // Auto-focus next input if digit entered
-    if (sanitized && index < 5) {
+    if (sanitized && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Call onComplete if all 6 digits entered
-    if (sanitized && otpString.length === 6 && onComplete) {
+    if (sanitized && otpString.replace(/ /g, '').length === OTP_LENGTH && onComplete) {
       onComplete(otpString);
     }
   };
 
-  /**
-   * Handle backspace to focus previous input
-   */
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      // If current box is empty and backspace pressed, focus previous
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === 'ArrowLeft' && index > 0) {
       inputRefs.current[index - 1]?.focus();
-    } else if (e.key === 'ArrowRight' && index < 5) {
+    } else if (e.key === 'ArrowRight' && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
-  /**
-   * Handle paste event to auto-fill all boxes
-   */
-  const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
 
-    if (pastedData.length === 6) {
+    if (pastedData.length === OTP_LENGTH) {
       const digits = pastedData.split('');
       setOtp(digits);
       onChange(pastedData);
+      inputRefs.current[OTP_LENGTH - 1]?.focus();
 
-      // Focus last input
-      inputRefs.current[5]?.focus();
-
-      // Call onComplete
       if (onComplete) {
         onComplete(pastedData);
       }
@@ -122,32 +74,37 @@ export function OtpInput({
   };
 
   return (
-    <div className={cn('space-y-2', className)}>
-      <div className="flex gap-3 justify-center">
-        {otp.map((digit, index) => (
-          <Input
+    <div className={cn('space-y-3', className)}>
+      <div className="flex items-center justify-center gap-3">
+        {Array.from({ length: OTP_LENGTH }).map((_, index) => (
+          <input
             key={index}
-            ref={(el: HTMLInputElement | null) => (inputRefs.current[index] = el)}
+            ref={(el) => { inputRefs.current[index] = el; }}
             type="text"
             inputMode="numeric"
+            autoComplete="one-time-code"
             maxLength={1}
-            value={digit}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(index, e.target.value)}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
+            value={otp[index] ?? ''}
+            onChange={(e) => handleChange(index, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(index, e)}
             onPaste={handlePaste}
             disabled={disabled}
-            className={cn(
-              'w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-muted-foreground/25 bg-white shadow-sm focus-visible:border-primary focus-visible:ring-primary',
-              digit && 'border-primary/40 bg-primary/5',
-              error && 'border-destructive focus-visible:ring-destructive'
-            )}
             aria-label={`Digit ${index + 1}`}
             aria-invalid={error ? 'true' : 'false'}
+            className={cn(
+              'h-14 w-12 rounded-xl border-2 bg-white text-center text-xl font-bold shadow-sm outline-none transition-all',
+              'focus:border-primary focus:ring-2 focus:ring-primary/20',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              otp[index]
+                ? 'border-primary/40 bg-primary/5'
+                : 'border-gray-300',
+              error && 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+            )}
           />
         ))}
       </div>
       {error && (
-        <p className="text-sm text-destructive text-center" role="alert">
+        <p className="text-center text-sm text-red-500" role="alert">
           {error}
         </p>
       )}
