@@ -1,22 +1,6 @@
 import { create } from 'zustand';
 import type { User } from '../types/auth.types';
 
-/**
- * Authentication Zustand store
- *
- * Manages authentication state including tokens and user data.
- *
- * Security considerations:
- * - accessToken stored in memory only (not persisted) for security
- * - refreshToken stored in localStorage (see T044 for persistence logic)
- * - Tokens cleared on logout
- *
- * Usage:
- * ```tsx
- * const { isAuthenticated, user, setTokens, logout } = useAuthStore();
- * ```
- */
-
 interface AuthState {
   // State
   user: User | null;
@@ -38,51 +22,38 @@ interface AuthState {
   getRefreshToken: () => string | null;
 }
 
-/**
- * localStorage key for refresh token
- * NOTE: refreshToken persistence will be fully implemented in T044
- */
 const REFRESH_TOKEN_KEY = 'upro_refresh_token';
+const ACCESS_TOKEN_KEY = 'upro_access_token';
 
-/**
- * Get refresh token from localStorage
- */
-const getStoredRefreshToken = (): string | null => {
+const getStoredToken = (key: string): string | null => {
   try {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
+    return localStorage.getItem(key);
   } catch {
-    // localStorage might be unavailable (SSR, private browsing)
     return null;
   }
 };
 
-/**
- * Store refresh token in localStorage
- */
-const setStoredRefreshToken = (token: string): void => {
+const setStoredToken = (key: string, token: string): void => {
   try {
-    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    localStorage.setItem(key, token);
   } catch {
-    // Silently fail if localStorage unavailable
-    console.warn('Failed to persist refresh token');
+    console.warn('Failed to persist token');
   }
 };
 
-/**
- * Clear refresh token from localStorage
- */
-const clearStoredRefreshToken = (): void => {
+const clearStoredTokens = (): void => {
   try {
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
   } catch {
     // Silently fail
   }
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  // Initial state
+  // Initial state — rehydrate access token from localStorage
   user: null,
-  accessToken: null,
+  accessToken: getStoredToken(ACCESS_TOKEN_KEY),
   userId: null,
   isProfileCompleted: false,
   isAuthenticated: false,
@@ -90,10 +61,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   // Actions
   setTokens: (accessToken: string, refreshToken: string, userId: string, isProfileCompleted: boolean) => {
-    // Store refreshToken in localStorage
-    setStoredRefreshToken(refreshToken);
+    setStoredToken(REFRESH_TOKEN_KEY, refreshToken);
+    setStoredToken(ACCESS_TOKEN_KEY, accessToken);
 
-    // Update state
     set({
       accessToken,
       userId,
@@ -118,10 +88,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: () => {
-    // Clear tokens from storage
-    clearStoredRefreshToken();
+    clearStoredTokens();
 
-    // Reset state
     set({
       user: null,
       accessToken: null,
@@ -136,6 +104,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   getRefreshToken: () => {
-    return getStoredRefreshToken();
+    return getStoredToken(REFRESH_TOKEN_KEY);
   },
 }));

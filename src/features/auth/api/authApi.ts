@@ -76,9 +76,13 @@ export async function verifyOtp(
 export async function refreshToken(
   refreshTokenValue: string
 ): Promise<RefreshTokenResponse> {
+  // Backend identifies user from Authorization header (attached by axios interceptor)
+  // Body only needs the refresh token
   const response = await apiClient.post<RefreshTokenResponse>(
     ENDPOINTS.auth.refresh,
-    { refreshToken: refreshTokenValue }
+    {
+      refreshToken: refreshTokenValue,
+    }
   );
   return response.data;
 }

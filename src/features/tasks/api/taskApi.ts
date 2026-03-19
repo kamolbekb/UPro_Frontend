@@ -129,14 +129,86 @@ export async function getAll(filters?: TaskFilters): Promise<PaginatedResult<Tas
 }
 
 /**
+ * Backend shape for GET /api/OrderTasks/{id}
+ */
+interface BackendTaskDetail {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  ownerName: string;
+  categoryId: string;
+  categoryName: string | { categoryId: string; categoryName: string };
+  userId: string;
+  budget: number;
+  budgetTypeId: string;
+  paymentTypeId: number;
+  paymentType: string;
+  canApply: boolean;
+  isSaved: boolean;
+  isArchived: boolean;
+  createdAt: string;
+  startDate: string | null;
+  endDate: string | null;
+  images: string[];
+  location?: {
+    id: string;
+    locationTypeId: number;
+    locationType: string;
+    latitude: number;
+    longitude: number;
+    address: string;
+    districtId: string | null;
+    districtName: string;
+  } | null;
+}
+
+/**
  * Get task by ID with full details
  *
  * @param id - Task UUID
- * @returns Task details including client info and applications
+ * @returns Task details transformed to match frontend TaskDetail type
  */
 export async function getById(id: string): Promise<TaskDetail> {
-  const response = await apiClient.get<TaskDetail>(ENDPOINTS.tasks.byId(id));
-  return response.data;
+  const response = await apiClient.get<BackendTaskDetail>(ENDPOINTS.tasks.byId(id));
+  const dto = response.data;
+
+  // categoryName may come as string or object from backend
+  const categoryName = typeof dto.categoryName === 'object'
+    ? dto.categoryName.categoryName
+    : dto.categoryName ?? '';
+
+  return {
+    id: dto.id,
+    title: dto.title,
+    description: dto.description ?? '',
+    categoryId: dto.categoryId ?? '',
+    categoryName,
+    subCategoryId: null,
+    subCategoryName: null,
+    budgetTypeId: dto.budgetTypeId ?? '',
+    budgetTypeName: dto.paymentType ?? '',
+    budgetAmount: dto.budget ?? 0,
+    serviceLocationId: dto.location?.id ?? '',
+    regionName: '',
+    districtName: dto.location?.districtName ?? dto.location?.address ?? '',
+    images: dto.images ?? [],
+    status: dto.isArchived ? 4 : 1,
+    applicationCount: 0,
+    isBookmarked: dto.isSaved ?? false,
+    createdBy: dto.userId ?? '',
+    createdAt: dto.createdAt ?? '',
+    modifiedAt: null,
+    client: {
+      id: dto.userId ?? '',
+      firstName: dto.ownerName?.split(' ')[0] ?? '',
+      lastName: dto.ownerName?.split(' ').slice(1).join(' ') ?? '',
+      image: null,
+      rating: null,
+      completedTasks: 0,
+    },
+    applications: [],
+  };
 }
 
 /**

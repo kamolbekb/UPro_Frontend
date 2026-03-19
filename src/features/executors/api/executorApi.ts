@@ -13,6 +13,23 @@ import type {
 } from '../types/executor.types';
 
 /**
+ * Normalize serviceFields from backend.
+ * Backend returns [{categoryId, categoryName}] but frontend expects string[].
+ */
+function normalizeServiceFields(
+  fields: unknown[] | undefined
+): string[] {
+  if (!fields || !Array.isArray(fields)) return [];
+  return fields.map((f) => {
+    if (typeof f === 'string') return f;
+    if (typeof f === 'object' && f !== null && 'categoryName' in f) {
+      return String((f as { categoryName: string }).categoryName);
+    }
+    return String(f);
+  });
+}
+
+/**
  * Become an executor (register as executor)
  *
  * @param data - Executor profile data with image
@@ -66,7 +83,9 @@ export async function becomeExecutor(
  */
 export async function getMyProfile(): Promise<ExecutorProfile> {
   const response = await apiClient.get<ExecutorProfile>(ENDPOINTS.executors.myProfile);
-  return response.data;
+  const data = response.data;
+  data.serviceFields = normalizeServiceFields(data.serviceFields as unknown[]);
+  return data;
 }
 
 /**
@@ -155,7 +174,15 @@ export async function getAll(
     ENDPOINTS.executors.list,
     body
   );
-  return response.data;
+  const data = response.data;
+  // Normalize serviceFields from backend objects to strings
+  if (data.items) {
+    data.items = data.items.map((item) => ({
+      ...item,
+      serviceFields: normalizeServiceFields(item.serviceFields as unknown[]),
+    }));
+  }
+  return data;
 }
 
 /**
@@ -166,7 +193,9 @@ export async function getAll(
  */
 export async function getById(id: string): Promise<ExecutorProfile> {
   const response = await apiClient.get<ExecutorProfile>(ENDPOINTS.executors.profile(id));
-  return response.data;
+  const data = response.data;
+  data.serviceFields = normalizeServiceFields(data.serviceFields as unknown[]);
+  return data;
 }
 
 /**

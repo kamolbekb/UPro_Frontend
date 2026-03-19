@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home,
   ClipboardList,
-  Users,
   MessageSquare,
   User,
   LogIn,
@@ -21,7 +20,6 @@ import type { Notification } from '@features/notifications/types/notification.ty
 const NAV_LINKS = [
   { label: 'Home', path: ROUTES.HOME, icon: Home, auth: false },
   { label: 'My Tasks', path: ROUTES.MY_TASKS, icon: ClipboardList, auth: true },
-  { label: 'Executors', path: ROUTES.EXECUTORS, icon: Users, auth: false },
   { label: 'Chat', path: ROUTES.CHAT, icon: MessageSquare, auth: true },
 ] as const;
 

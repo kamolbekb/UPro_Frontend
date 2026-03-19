@@ -8,9 +8,8 @@ interface AuthProviderProps {
 
 /**
  * Decode JWT payload without verification
- * Used to check token expiry time
  */
-function decodeJwt(token: string): { exp?: number } | null {
+function decodeJwt(token: string): Record<string, unknown> | null {
   try {
     const base64Url = token.split('.')[1];
     if (!base64Url) return null;
@@ -30,17 +29,22 @@ function decodeJwt(token: string): { exp?: number } | null {
 }
 
 /**
+ * Check if a JWT token is expired
+ */
+function isTokenExpired(token: string): boolean {
+  const payload = decodeJwt(token);
+  const exp = payload?.exp;
+  if (typeof exp !== 'number') return true;
+  return Date.now() >= exp * 1000;
+}
+
+/**
  * Auth provider to manage authentication state lifecycle
  *
- * Responsibilities:
- * 1. Hydrate auth state on app boot from localStorage refresh token
- * 2. Proactively refresh access token before it expires
- * 3. Handle refresh failures by logging out user
- *
- * Token refresh strategy:
- * - Checks token expiry every minute
- * - Refreshes if token will expire in < 5 minutes
- * - Prevents multiple simultaneous refresh attempts
+ * On page load:
+ * - Access token is rehydrated from localStorage synchronously in the store
+ * - This provider checks if it's valid or needs refreshing
+ * - The expired access token is still sent as Authorization header for the refresh call
  */
 export function AuthProvider({ children }: AuthProviderProps) {
   const getRefreshToken = useAuthStore((state) => state.getRefreshToken);
@@ -52,9 +56,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const isRefreshing = useRef(false);
 
-  /**
-   * Attempt to refresh access token
-   */
   const attemptRefresh = async () => {
     if (isRefreshing.current) return;
 
@@ -66,10 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     try {
       isRefreshing.current = true;
-
       const response = await refreshTokenApi(storedRefreshToken);
-
-      // Update tokens in store - backend returns full LoginResponseModel with id
       setTokens(
         response.accessToken,
         response.refreshToken,
@@ -84,52 +82,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  /**
-   * Check if access token needs refresh
-   * Returns true if token will expire in < 5 minutes
-   */
   const shouldRefreshToken = (): boolean => {
     const accessToken = getAccessToken();
     if (!accessToken) return false;
 
     const payload = decodeJwt(accessToken);
-    if (!payload?.exp) return false;
+    const exp = payload?.exp;
+    if (typeof exp !== 'number') return false;
 
-    const expiryTime = payload.exp * 1000; // Convert to milliseconds
-    const now = Date.now();
-    const timeUntilExpiry = expiryTime - now;
+    const timeUntilExpiry = exp * 1000 - Date.now();
     const fiveMinutes = 5 * 60 * 1000;
-
     return timeUntilExpiry < fiveMinutes && timeUntilExpiry > 0;
   };
 
   /**
    * Hydrate auth state on app boot
-   * Marks hydration complete after attempt finishes (success or failure)
    */
   useEffect(() => {
-    const storedRefreshToken = getRefreshToken();
+    const accessToken = getAccessToken();
+    const refreshTokenValue = getRefreshToken();
 
-    if (storedRefreshToken && !getAccessToken()) {
-      // Refresh token exists but no access token
-      // Attempt to refresh to restore session, then mark hydrated
+    if (accessToken && !isTokenExpired(accessToken)) {
+      // Valid access token in localStorage — restore session immediately
+      useAuthStore.setState({ isAuthenticated: true });
+      setHydrated();
+    } else if (refreshTokenValue) {
+      // Access token missing or expired, but refresh token exists
+      // The (possibly expired) access token is still in localStorage
+      // and will be attached via the axios interceptor as Authorization header
       attemptRefresh().then(() => setHydrated());
     } else {
-      // No refresh token or already have access token — hydration done immediately
+      // No tokens at all
       setHydrated();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
-   * Set up periodic token refresh check
-   * Runs every minute to check if token needs refresh
+   * Periodic token refresh check (every 60s)
    */
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (shouldRefreshToken()) {
         attemptRefresh();
       }
-    }, 60 * 1000); // Check every minute
+    }, 60 * 1000);
 
     return () => clearInterval(intervalId);
   }, [getAccessToken, getRefreshToken, user]); // eslint-disable-line react-hooks/exhaustive-deps

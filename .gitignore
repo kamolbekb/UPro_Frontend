@@ -47,3 +47,5 @@ vite.config.ts.timestamp-*
 *.tsbuildinfo
 .git-credentials
 .env
+test-results/
+e2e/.auth-state.json
