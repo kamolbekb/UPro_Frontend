@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ROUTES, ROUTE_PATTERNS } from '@shared/constants/routes';
 import { AuthLayout } from '@shared/components/layout/AuthLayout';
 import { ProtectedRoute } from '@shared/components/guards/ProtectedRoute';
@@ -6,6 +6,7 @@ import { ProtectedRoute } from '@shared/components/guards/ProtectedRoute';
 // Auth Pages
 import { LoginPage } from '@features/auth/pages/LoginPage';
 import { OtpVerifyPage } from '@features/auth/pages/OtpVerifyPage';
+import { CompleteProfilePage } from '@features/auth/pages/CompleteProfilePage';
 
 // Home Page (unified tasks/executors view)
 import { HomePage } from '@features/home/pages/HomePage';
@@ -31,6 +32,8 @@ const PlaceholderPage = ({ title }: { title: string }) => (
 
 // Profile Pages
 const ProfilePage = () => <PlaceholderPage title="My Profile" />;
+const MyTasksPage = () => <PlaceholderPage title="My Tasks" />;
+const SubscriptionsPage = () => <PlaceholderPage title="Subscriptions" />;
 
 // Error Pages
 const NotFoundPage = () => <PlaceholderPage title="404 - Not Found" />;
@@ -39,7 +42,7 @@ const NotFoundPage = () => <PlaceholderPage title="404 - Not Found" />;
  * Application router configuration
  */
 const router = createBrowserRouter([
-  // Root redirect to home page
+  // Root - Home page (public, shows tasks/executors toggle)
   {
     path: ROUTES.HOME,
     element: <HomePage />,
@@ -58,6 +61,16 @@ const router = createBrowserRouter([
         element: <OtpVerifyPage />,
       },
     ],
+  },
+
+  // Complete profile (protected, shown after first login)
+  {
+    path: ROUTES.COMPLETE_PROFILE,
+    element: (
+      <ProtectedRoute>
+        <CompleteProfilePage />
+      </ProtectedRoute>
+    ),
   },
 
   // Home routes (public - shows tasks/executors)
@@ -84,6 +97,16 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <CreateTaskPage />
+      </ProtectedRoute>
+    ),
+  },
+
+  // My Tasks (task creator/executor dashboard - protected)
+  {
+    path: ROUTES.MY_TASKS,
+    element: (
+      <ProtectedRoute>
+        <MyTasksPage />
       </ProtectedRoute>
     ),
   },
@@ -126,6 +149,16 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ProfilePage />
+      </ProtectedRoute>
+    ),
+  },
+
+  // Subscriptions (protected)
+  {
+    path: ROUTES.SUBSCRIPTIONS,
+    element: (
+      <ProtectedRoute>
+        <SubscriptionsPage />
       </ProtectedRoute>
     ),
   },

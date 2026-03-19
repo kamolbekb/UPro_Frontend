@@ -12,6 +12,7 @@ export const queryKeys = {
   auth: {
     all: ['auth'] as const,
     user: () => [...queryKeys.auth.all, 'user'] as const,
+    userAuth: () => [...queryKeys.auth.all, 'user-auth'] as const,
   },
 
   tasks: {
@@ -21,6 +22,16 @@ export const queryKeys = {
       [...queryKeys.tasks.lists(), filters] as const,
     detail: (id: string) => [...queryKeys.tasks.all, 'detail', id] as const,
     saved: () => [...queryKeys.tasks.all, 'saved'] as const,
+  },
+
+  applications: {
+    all: ['applications'] as const,
+    executors: (taskId: string) =>
+      [...queryKeys.applications.all, 'executors', taskId] as const,
+    creatorTasks: () =>
+      [...queryKeys.applications.all, 'creator-tasks'] as const,
+    executorTasks: (status?: number) =>
+      [...queryKeys.applications.all, 'executor-tasks', status] as const,
   },
 
   executors: {
@@ -43,6 +54,7 @@ export const queryKeys = {
       [...queryKeys.chat.all, 'conversation', id] as const,
     messages: (conversationId: string) =>
       [...queryKeys.chat.all, 'messages', conversationId] as const,
+    unreadCount: () => [...queryKeys.chat.all, 'unread-count'] as const,
   },
 
   notifications: {
@@ -51,6 +63,12 @@ export const queryKeys = {
     list: (filters: Record<string, unknown> | object) =>
       [...queryKeys.notifications.lists(), filters] as const,
     unreadCount: () => [...queryKeys.notifications.all, 'unread-count'] as const,
+  },
+
+  subscriptions: {
+    all: ['subscriptions'] as const,
+    plans: () => [...queryKeys.subscriptions.all, 'plans'] as const,
+    mySubscription: () => [...queryKeys.subscriptions.all, 'my-subscription'] as const,
   },
 
   categories: {
@@ -69,5 +87,11 @@ export const queryKeys = {
 
   budgetTypes: {
     all: ['budgetTypes'] as const,
+  },
+
+  extraFields: {
+    all: ['extraFields'] as const,
+    bySubcategory: (subcategoryId: string) =>
+      [...queryKeys.extraFields.all, subcategoryId] as const,
   },
 } as const;

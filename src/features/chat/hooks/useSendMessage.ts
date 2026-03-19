@@ -39,7 +39,7 @@ export function useSendMessage() {
         id: `temp-${Date.now()}`,
         conversationId,
         senderId: user?.id ?? '',
-        senderName: user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : '',
+        senderName: user?.fullName ?? '',
         senderImage: user?.image ?? null,
         content,
         attachments: [],

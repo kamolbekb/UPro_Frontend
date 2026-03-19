@@ -11,8 +11,20 @@ export const ENDPOINTS = {
    */
   auth: {
     sendOtp: '/api/Users/InitiateLogin',
+    resendOtp: '/api/Users/ResendOtpCode',
     verifyOtp: '/api/Users/VerifyOtp',
     refresh: '/api/Users/RefreshToken',
+  },
+
+  /**
+   * User endpoints (via UsersController)
+   */
+  users: {
+    currentUser: '/api/Users/GetCurrentUser',
+    userAuth: '/api/Users/get-user-auth',
+    completeProfile: '/api/Users/CompleteProfile',
+    myProfile: '/api/Users/my-profile',
+    profileImage: '/api/Users/profile-image',
   },
 
   /**
@@ -28,6 +40,19 @@ export const ENDPOINTS = {
     archive: (id: string) => `/api/OrderTasks/archive/${id}`,
     save: (taskId: string) => `/api/SavedTasks/${taskId}`,
     saved: '/api/SavedTasks',
+  },
+
+  /**
+   * Task Applications endpoints (via OrderTaskApplicationsController)
+   */
+  applications: {
+    apply: '/api/OrderTaskApplications/apply',
+    executors: (taskId: string) => `/api/OrderTaskApplications/executors/${taskId}`,
+    accept: (applicationId: string) => `/api/OrderTaskApplications/applications/accept/${applicationId}`,
+    complete: (applicationId: string) => `/api/OrderTaskApplications/applications/complete/${applicationId}`,
+    reject: (applicationId: string) => `/api/OrderTaskApplications/applications/reject/${applicationId}`,
+    creatorTasks: '/api/OrderTaskApplications/creator/tasks',
+    executorTasks: '/api/OrderTaskApplications/executor/tasks',
   },
 
   /**
@@ -53,6 +78,7 @@ export const ENDPOINTS = {
     deleteProfile: '/api/Executors/profile',
     languages: '/api/Executors/languages',
     educationTypes: '/api/Executors/education-types',
+    languageLevels: '/api/Executors/language-levels',
   },
 
   /**
@@ -61,10 +87,12 @@ export const ENDPOINTS = {
   chat: {
     conversations: '/api/Chat/conversations',
     conversationById: (id: string) => `/api/Chat/conversations/${id}`,
+    createConversation: (applicationId: string) => `/api/Chat/conversations/${applicationId}`,
     messages: (conversationId: string) =>
       `/api/Chat/conversations/${conversationId}/messages`,
-    sendMessage: '/api/Chat/messages',
-    markAsRead: (messageId: string) => `/api/Chat/messages/${messageId}/read`,
+    markAsRead: (conversationId: string) =>
+      `/api/Chat/conversations/${conversationId}/read`,
+    unreadCount: '/api/Chat/unread-count',
     hub: '/hubs/chat',
   },
 
@@ -77,15 +105,18 @@ export const ENDPOINTS = {
     markAllRead: '/api/Notifications/mark-all-read',
     unreadCount: '/api/Notifications/unread-count',
     registerToken: '/api/Notifications/register-token',
+    removeToken: (token: string) => `/api/Notifications/remove-token/${token}`,
   },
 
   /**
-   * User endpoints
+   * Subscription endpoints
    */
-  users: {
-    profile: '/api/Users/profile',
-    profileImage: '/api/Users/profile-image',
-    updateProfile: '/api/Users/profile',
+  subscriptions: {
+    plans: '/api/Subscriptions/plans',
+    planById: (id: string) => `/api/Subscriptions/plans/${id}`,
+    mySubscription: '/api/Subscriptions/my-subscription',
+    subscribe: '/api/Subscriptions/subscribe',
+    cancel: '/api/Subscriptions/cancel',
   },
 
   /**
@@ -97,12 +128,26 @@ export const ENDPOINTS = {
   },
 
   /**
+   * File endpoints (authenticated)
+   */
+  files: {
+    get: (filename: string) => `/files/${filename}`,
+  },
+
+  /**
    * Category endpoints
    */
   categories: {
     parents: '/api/Categories/parents',
     subcategories: '/api/Categories/subcategories',
     search: '/api/Categories/subcategories/search',
+  },
+
+  /**
+   * Extra Fields endpoints (dynamic form fields per subcategory)
+   */
+  extraFields: {
+    bySubcategory: (subcategoryId: string) => `/api/ExtraFields/${subcategoryId}`,
   },
 
   /**

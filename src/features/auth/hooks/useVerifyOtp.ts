@@ -45,8 +45,12 @@ export function useVerifyOtp() {
       // Show success message
       toast.success('Successfully logged in!', { duration: 3000 });
 
-      // Navigate to tasks page (or return URL if provided)
-      navigate(ROUTES.TASKS, { replace: true });
+      // Navigate based on profile completion status
+      if (!data.isProfileCompleted) {
+        navigate(ROUTES.COMPLETE_PROFILE, { replace: true });
+      } else {
+        navigate(ROUTES.TASKS, { replace: true });
+      }
     },
     onError: (error) => {
       // Error toast is handled by global mutation default

@@ -1,32 +1,23 @@
 /**
  * Authentication type definitions
  *
- * Defines all authentication-related types for the UPro frontend
+ * Defines all authentication-related types for the UPro frontend.
+ * Note: All API responses are unwrapped from ApiResult<T> by the interceptor,
+ * so types here represent the `result` field only.
  */
 
 /**
- * User data returned from backend
+ * User data returned from backend (UserAuthResponseModel)
  */
 export interface User {
   id: string;
-  email: string;
   code?: string;
-  firstName?: string | null;
-  lastName?: string | null;
   fullName?: string | null;
+  firstname?: string | null;
+  lastname?: string | null;
   image?: string | null;
-  role?: number;
+  role?: number; // 1=Admin, 2=User, 3=Executor
   isProfileCompleted?: boolean;
-}
-
-/**
- * Authenticated user with tokens
- */
-export interface AuthenticatedUser {
-  id: string;
-  accessToken: string;
-  refreshToken: string;
-  isProfileCompleted: boolean;
 }
 
 /**
@@ -38,12 +29,9 @@ export interface SendOtpRequest {
 
 /**
  * Response from send OTP endpoint (InitiateLogin)
+ * Backend returns ApiResult<bool>, interceptor unwraps to boolean
  */
-export interface SendOtpResponse {
-  succeeded: boolean;
-  result: boolean;
-  errors: string[];
-}
+export type SendOtpResponse = boolean;
 
 /**
  * Request body for verifying OTP
@@ -54,7 +42,7 @@ export interface VerifyOtpRequest {
 }
 
 /**
- * Response from verify OTP endpoint
+ * Response from verify OTP endpoint (LoginResponseModel)
  */
 export interface VerifyOtpResponse {
   id: string;
@@ -71,12 +59,38 @@ export interface RefreshTokenRequest {
 }
 
 /**
- * Response from refresh token endpoint
+ * Response from refresh token endpoint (LoginResponseModel)
  */
 export interface RefreshTokenResponse {
+  id: string;
   accessToken: string;
   refreshToken: string;
-  isProfileCompleted?: boolean;
+  isProfileCompleted: boolean;
+}
+
+/**
+ * Request body for completing profile
+ */
+export interface CompleteProfileRequest {
+  firstName: string;
+  lastName: string;
+}
+
+/**
+ * Response from complete profile endpoint
+ */
+export interface CompleteProfileResponse {
+  id: string;
+  isProfileCompleted: boolean;
+}
+
+/**
+ * Request body for updating user profile
+ */
+export interface UpdateMyProfileRequest {
+  firstName: string;
+  lastName: string;
+  image?: File;
 }
 
 /**
@@ -85,10 +99,12 @@ export interface RefreshTokenResponse {
 export interface AuthState {
   user: User | null;
   accessToken: string | null;
+  userId: string | null;
   isAuthenticated: boolean;
   isProfileCompleted: boolean;
   setTokens: (accessToken: string, refreshToken: string, userId: string, isProfileCompleted: boolean) => void;
   setUser: (user: User) => void;
+  setProfileCompleted: (completed: boolean) => void;
   logout: () => void;
   getAccessToken: () => string | null;
   getRefreshToken: () => string | null;

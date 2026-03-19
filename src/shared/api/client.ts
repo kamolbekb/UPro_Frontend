@@ -32,19 +32,13 @@ async function refreshTokenAndRetry(
   try {
     const response = await refreshTokenApi(storedRefreshToken);
 
-    // Update tokens in store
-    const userId = useAuthStore.getState().userId;
-    if (userId) {
-      useAuthStore.getState().setTokens(
-        response.accessToken,
-        response.refreshToken,
-        userId,
-        response.isProfileCompleted ?? false
-      );
-    } else {
-      // No userId in store - should not happen
-      throw new ApiError(401, 'Invalid session state');
-    }
+    // Update tokens in store - backend returns full LoginResponseModel with id
+    useAuthStore.getState().setTokens(
+      response.accessToken,
+      response.refreshToken,
+      response.id,
+      response.isProfileCompleted
+    );
   } catch (error) {
     // Refresh failed - logout user
     useAuthStore.getState().logout();

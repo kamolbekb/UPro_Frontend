@@ -128,6 +128,7 @@ export async function deleteProfile(): Promise<void> {
 
 /**
  * Get all executors with filters
+ * Backend expects POST with ExecutorFilterOptions body
  *
  * @param filters - Search and filter criteria
  * @returns Paginated executor list
@@ -135,35 +136,25 @@ export async function deleteProfile(): Promise<void> {
 export async function getAll(
   filters?: ExecutorFilters
 ): Promise<PaginatedResult<ExecutorListItem>> {
-  const params = new URLSearchParams();
+  const body: Record<string, unknown> = {
+    pageNumber: filters?.page ?? 1,
+    pageSize: filters?.limit ?? 10,
+  };
 
   if (filters?.searchTerm) {
-    params.append('searchTerm', filters.searchTerm);
+    body.searchTerm = filters.searchTerm;
   }
   if (filters?.categoryId) {
-    params.append('categoryId', filters.categoryId);
-  }
-  if (filters?.regionId) {
-    params.append('regionId', filters.regionId);
+    body.subCategoryId = filters.categoryId;
   }
   if (filters?.districtId) {
-    params.append('districtId', filters.districtId);
-  }
-  if (filters?.minRating !== undefined) {
-    params.append('minRating', filters.minRating.toString());
-  }
-  if (filters?.isAvailable !== undefined) {
-    params.append('isAvailable', filters.isAvailable.toString());
-  }
-  if (filters?.page) {
-    params.append('page', filters.page.toString());
-  }
-  if (filters?.limit) {
-    params.append('limit', filters.limit.toString());
+    body.serviceLocationId = filters.districtId;
   }
 
-  const url = `${ENDPOINTS.executors.list}?${params.toString()}`;
-  const response = await apiClient.get<PaginatedResult<ExecutorListItem>>(url);
+  const response = await apiClient.post<PaginatedResult<ExecutorListItem>>(
+    ENDPOINTS.executors.list,
+    body
+  );
   return response.data;
 }
 
@@ -199,5 +190,17 @@ export async function getLanguages(searchTerm?: string): Promise<Language[]> {
  */
 export async function getEducationTypes(): Promise<EducationType[]> {
   const response = await apiClient.get<EducationType[]>(ENDPOINTS.executors.educationTypes);
+  return response.data;
+}
+
+/**
+ * Get language proficiency levels (for dropdown)
+ *
+ * @returns List of language levels
+ */
+export async function getLanguageLevels(): Promise<{ id: number; name: string }[]> {
+  const response = await apiClient.get<{ id: number; name: string }[]>(
+    ENDPOINTS.executors.languageLevels
+  );
   return response.data;
 }

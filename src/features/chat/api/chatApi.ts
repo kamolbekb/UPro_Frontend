@@ -5,13 +5,10 @@ import type {
   Message,
   MessagesResponse,
   GetMessagesRequest,
-  CreateConversationRequest,
 } from '../types/chat.types';
 
 /**
  * Get all conversations for current user
- *
- * Returns conversations with last message and unread count.
  *
  * @returns List of conversations
  */
@@ -24,7 +21,7 @@ export async function getConversations(): Promise<Conversation[]> {
  * Get messages for a conversation with pagination
  *
  * @param request - Conversation ID and pagination params
- * @returns Paginated messages (50 per page by default)
+ * @returns Paginated messages
  */
 export async function getMessages(request: GetMessagesRequest): Promise<MessagesResponse> {
   const params = new URLSearchParams();
@@ -33,7 +30,7 @@ export async function getMessages(request: GetMessagesRequest): Promise<Messages
     params.append('page', request.page.toString());
   }
   if (request.limit !== undefined) {
-    params.append('limit', request.limit.toString());
+    params.append('pageSize', request.limit.toString());
   }
 
   const url = `${ENDPOINTS.chat.messages(request.conversationId)}?${params.toString()}`;
@@ -42,50 +39,68 @@ export async function getMessages(request: GetMessagesRequest): Promise<Messages
 }
 
 /**
- * Get or create conversation with a participant
+ * Get or create conversation by task application ID
+ * Backend creates conversation between task owner and executor via applicationId
  *
- * If conversation exists, returns existing one.
- * Otherwise, creates new conversation with optional initial message.
- *
- * @param request - Participant ID and optional initial message
+ * @param applicationId - Task application UUID
  * @returns Conversation
  */
 export async function getOrCreateConversation(
-  request: CreateConversationRequest
+  applicationId: string
 ): Promise<Conversation> {
   const response = await apiClient.post<Conversation>(
-    ENDPOINTS.chat.conversations,
-    request
+    ENDPOINTS.chat.createConversation(applicationId)
   );
   return response.data;
 }
 
 /**
  * Send a message in a conversation
- *
- * Note: This is a fallback for HTTP-based sending.
- * Prefer using SignalR's SendMessage for real-time delivery.
+ * Uses multipart/form-data to support file attachments
  *
  * @param conversationId - Conversation ID
  * @param content - Message text
+ * @param attachments - Optional file attachments
  * @returns Created message
  */
 export async function sendMessage(
   conversationId: string,
-  content: string
+  content: string,
+  attachments?: File[]
 ): Promise<Message> {
-  const response = await apiClient.post<Message>(ENDPOINTS.chat.sendMessage, {
-    conversationId,
-    content,
-  });
+  const formData = new FormData();
+  if (content) {
+    formData.append('content', content);
+  }
+  if (attachments) {
+    attachments.forEach((file) => {
+      formData.append('attachments', file);
+    });
+  }
+
+  const response = await apiClient.post<Message>(
+    ENDPOINTS.chat.messages(conversationId),
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  );
   return response.data;
 }
 
 /**
- * Mark message as read
+ * Mark all messages in a conversation as read
  *
- * @param messageId - Message ID to mark as read
+ * @param conversationId - Conversation ID
  */
-export async function markMessageAsRead(messageId: string): Promise<void> {
-  await apiClient.post(ENDPOINTS.chat.markAsRead(messageId));
+export async function markMessagesAsRead(conversationId: string): Promise<void> {
+  await apiClient.post(ENDPOINTS.chat.markAsRead(conversationId));
+}
+
+/**
+ * Get unread message count across all conversations
+ *
+ * @returns Unread count
+ */
+export async function getUnreadCount(): Promise<number> {
+  const response = await apiClient.get<number>(ENDPOINTS.chat.unreadCount);
+  return response.data;
 }
