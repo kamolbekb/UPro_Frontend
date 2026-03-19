@@ -71,6 +71,11 @@ export const queryKeys = {
     mySubscription: () => [...queryKeys.subscriptions.all, 'my-subscription'] as const,
   },
 
+  profile: {
+    all: ['profile'] as const,
+    currentUser: () => [...queryKeys.profile.all, 'current-user'] as const,
+  },
+
   categories: {
     all: ['categories'] as const,
     detail: (id: string) => [...queryKeys.categories.all, 'detail', id] as const,

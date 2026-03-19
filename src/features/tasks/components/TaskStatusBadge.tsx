@@ -6,47 +6,31 @@ export interface TaskStatusBadgeProps {
 }
 
 /**
- * Task status badge with color coding
- *
- * Maps task status to appropriate badge variant and display text.
+ * Task status badge with dot indicator and color coding
  */
 export function TaskStatusBadge({ status }: TaskStatusBadgeProps) {
   const getStatusConfig = (taskStatus: TaskStatus) => {
     switch (taskStatus) {
       case TaskStatus.Draft:
-        return {
-          label: 'Draft',
-          variant: 'secondary' as const,
-        };
+        return { label: 'Draft', className: 'bg-gray-50 text-gray-600 border-gray-200' };
       case TaskStatus.Published:
-        return {
-          label: 'Open',
-          variant: 'default' as const,
-        };
+        return { label: 'Open', className: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
       case TaskStatus.InProgress:
-        return {
-          label: 'In Progress',
-          variant: 'default' as const,
-        };
+        return { label: 'In Progress', className: 'bg-blue-50 text-blue-700 border-blue-200' };
       case TaskStatus.Completed:
-        return {
-          label: 'Completed',
-          variant: 'outline' as const,
-        };
+        return { label: 'Completed', className: 'bg-gray-50 text-gray-600 border-gray-200' };
       case TaskStatus.Cancelled:
-        return {
-          label: 'Cancelled',
-          variant: 'destructive' as const,
-        };
+        return { label: 'Cancelled', className: 'bg-red-50 text-red-600 border-red-200' };
       default:
-        return {
-          label: 'Unknown',
-          variant: 'secondary' as const,
-        };
+        return { label: 'Unknown', className: '' };
     }
   };
 
   const config = getStatusConfig(status);
 
-  return <Badge variant={config.variant}>{config.label}</Badge>;
+  return (
+    <Badge variant="outline" className={config.className}>
+      {config.label}
+    </Badge>
+  );
 }

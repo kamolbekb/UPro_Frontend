@@ -1,7 +1,10 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Link } from 'react-router-dom';
+import { Home, SearchX } from 'lucide-react';
 import { ROUTES, ROUTE_PATTERNS } from '@shared/constants/routes';
+import { MainLayout } from '@shared/components/layout/MainLayout';
 import { AuthLayout } from '@shared/components/layout/AuthLayout';
 import { ProtectedRoute } from '@shared/components/guards/ProtectedRoute';
+import { Button } from '@shared/components/ui/button';
 
 // Auth Pages
 import { LoginPage } from '@features/auth/pages/LoginPage';
@@ -22,33 +25,49 @@ import { BecomeExecutorPage } from '@features/executors/pages/BecomeExecutorPage
 // Chat Pages
 import { ChatPage } from '@features/chat/pages/ChatPage';
 
-// Placeholder components (will be replaced with actual pages in future phases)
+// My Tasks Page
+import { MyTasksPage } from '@features/applications/pages/MyTasksPage';
+
+// Profile Page
+import { ProfilePage } from '@features/profile/pages/ProfilePage';
+
+// Placeholder for pages not yet implemented
 const PlaceholderPage = ({ title }: { title: string }) => (
-  <div style={{ padding: '2rem' }}>
-    <h1>{title}</h1>
-    <p>This page will be implemented in the next phases.</p>
+  <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+    <h1 className="mb-2 text-2xl font-bold">{title}</h1>
+    <p className="text-muted-foreground">This page will be implemented in the next phases.</p>
   </div>
 );
 
-// Profile Pages
-const ProfilePage = () => <PlaceholderPage title="My Profile" />;
-const MyTasksPage = () => <PlaceholderPage title="My Tasks" />;
 const SubscriptionsPage = () => <PlaceholderPage title="Subscriptions" />;
 
-// Error Pages
-const NotFoundPage = () => <PlaceholderPage title="404 - Not Found" />;
+// 404 Page
+function NotFoundPage() {
+  return (
+    <div className="flex min-h-[80vh] flex-col items-center justify-center px-4 text-center">
+      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
+        <SearchX className="h-10 w-10 text-primary" />
+      </div>
+      <h1 className="mb-2 text-4xl font-bold">404</h1>
+      <p className="mb-1 text-xl font-semibold text-foreground">Page not found</p>
+      <p className="mb-8 max-w-md text-muted-foreground">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <Button asChild>
+        <Link to={ROUTES.HOME}>
+          <Home className="mr-2 h-4 w-4" />
+          Back to Home
+        </Link>
+      </Button>
+    </div>
+  );
+}
 
 /**
  * Application router configuration
  */
 const router = createBrowserRouter([
-  // Root - Home page (public, shows tasks/executors toggle)
-  {
-    path: ROUTES.HOME,
-    element: <HomePage />,
-  },
-
-  // Auth routes (public) - wrapped in AuthLayout
+  // Auth routes (public) — wrapped in AuthLayout (no navbar)
   {
     element: <AuthLayout />,
     children: [
@@ -63,7 +82,7 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Complete profile (protected, shown after first login)
+  // Complete profile (standalone, no navbar)
   {
     path: ROUTES.COMPLETE_PROFILE,
     element: (
@@ -73,100 +92,95 @@ const router = createBrowserRouter([
     ),
   },
 
-  // Home routes (public - shows tasks/executors)
+  // All main pages — wrapped in MainLayout (has navbar)
   {
-    path: ROUTES.TASKS,
-    element: <HomePage />,
-  },
-  {
-    path: ROUTES.EXECUTORS,
-    element: <HomePage />,
-  },
+    element: <MainLayout />,
+    children: [
+      // Home (public)
+      { path: ROUTES.HOME, element: <HomePage /> },
+      { path: ROUTES.TASKS, element: <HomePage /> },
+      { path: ROUTES.EXECUTORS, element: <HomePage /> },
 
-  // Task routes
-  {
-    path: ROUTE_PATTERNS.TASK_DETAIL,
-    element: (
-      <ProtectedRoute>
-        <TaskDetailPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.TASK_NEW,
-    element: (
-      <ProtectedRoute>
-        <CreateTaskPage />
-      </ProtectedRoute>
-    ),
-  },
+      // Task routes
+      {
+        path: ROUTE_PATTERNS.TASK_DETAIL,
+        element: (
+          <ProtectedRoute>
+            <TaskDetailPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.TASK_NEW,
+        element: (
+          <ProtectedRoute>
+            <CreateTaskPage />
+          </ProtectedRoute>
+        ),
+      },
 
-  // My Tasks (task creator/executor dashboard - protected)
-  {
-    path: ROUTES.MY_TASKS,
-    element: (
-      <ProtectedRoute>
-        <MyTasksPage />
-      </ProtectedRoute>
-    ),
-  },
+      // My Tasks (protected)
+      {
+        path: ROUTES.MY_TASKS,
+        element: (
+          <ProtectedRoute>
+            <MyTasksPage />
+          </ProtectedRoute>
+        ),
+      },
 
-  // Executor routes
-  {
-    path: ROUTE_PATTERNS.EXECUTOR_PROFILE,
-    element: <ExecutorProfilePage />,
-  },
-  {
-    path: ROUTES.EXECUTOR_BECOME,
-    element: (
-      <ProtectedRoute>
-        <BecomeExecutorPage />
-      </ProtectedRoute>
-    ),
-  },
+      // Executor routes
+      { path: ROUTE_PATTERNS.EXECUTOR_PROFILE, element: <ExecutorProfilePage /> },
+      {
+        path: ROUTES.EXECUTOR_BECOME,
+        element: (
+          <ProtectedRoute>
+            <BecomeExecutorPage />
+          </ProtectedRoute>
+        ),
+      },
 
-  // Chat routes (protected)
-  {
-    path: ROUTES.CHAT,
-    element: (
-      <ProtectedRoute>
-        <ChatPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTE_PATTERNS.CHAT_CONVERSATION,
-    element: (
-      <ProtectedRoute>
-        <ChatPage />
-      </ProtectedRoute>
-    ),
-  },
+      // Chat routes (protected)
+      {
+        path: ROUTES.CHAT,
+        element: (
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTE_PATTERNS.CHAT_CONVERSATION,
+        element: (
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        ),
+      },
 
-  // Profile routes (protected)
-  {
-    path: ROUTES.PROFILE,
-    element: (
-      <ProtectedRoute>
-        <ProfilePage />
-      </ProtectedRoute>
-    ),
-  },
+      // Profile (protected)
+      {
+        path: ROUTES.PROFILE,
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
 
-  // Subscriptions (protected)
-  {
-    path: ROUTES.SUBSCRIPTIONS,
-    element: (
-      <ProtectedRoute>
-        <SubscriptionsPage />
-      </ProtectedRoute>
-    ),
-  },
+      // Subscriptions (protected)
+      {
+        path: ROUTES.SUBSCRIPTIONS,
+        element: (
+          <ProtectedRoute>
+            <SubscriptionsPage />
+          </ProtectedRoute>
+        ),
+      },
 
-  // 404 catch-all
-  {
-    path: '*',
-    element: <NotFoundPage />,
+      // 404 catch-all
+      { path: '*', element: <NotFoundPage /> },
+    ],
   },
 ]);
 

@@ -2,7 +2,7 @@ import { apiClient } from '@shared/api/client';
 import { ENDPOINTS } from '@shared/api/endpoints';
 import type {
   UpdateMyProfileRequest,
-  User,
+  UserProfile,
 } from '@features/auth/types/auth.types';
 
 /**
@@ -10,8 +10,8 @@ import type {
  *
  * @returns User profile data
  */
-export async function getCurrentUser(): Promise<User> {
-  const response = await apiClient.get<User>(ENDPOINTS.users.currentUser);
+export async function getCurrentUser(): Promise<UserProfile> {
+  const response = await apiClient.get<UserProfile>(ENDPOINTS.users.currentUser);
   return response.data;
 }
 

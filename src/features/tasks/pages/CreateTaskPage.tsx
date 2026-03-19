@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Send, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Button } from '@shared/components/ui/button';
@@ -27,13 +27,6 @@ import { ROUTES } from '@shared/constants/routes';
 
 /**
  * Task creation page
- *
- * Full-featured form for creating new tasks with:
- * - Title, description, category, budget, location fields
- * - Image upload with compression
- * - Auto-save draft functionality (every 30s)
- * - Form validation with Zod
- * - Loading and error states
  */
 export function CreateTaskPage() {
   const navigate = useNavigate();
@@ -63,34 +56,24 @@ export function CreateTaskPage() {
     },
   });
 
-  // Watch form fields for auto-save
   const formValues = watch();
 
-  /**
-   * Auto-save draft every 30 seconds
-   */
   useEffect(() => {
-    // Skip if form is empty
     if (!formValues.title && !formValues.description) {
       return undefined;
     }
 
     const interval = setInterval(() => {
-      // Only save if we have at least a title
       if (formValues.title && formValues.title.length >= 5) {
         handleSaveDraft();
       }
-    }, 30000); // 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues]);
 
-  /**
-   * Handle form submission
-   */
   const onSubmit = async (data: CreateTaskFormData) => {
-    // Validate images
     if (images.length === 0) {
       toast.error('Please upload at least one image');
       return;
@@ -102,18 +85,13 @@ export function CreateTaskPage() {
         images,
       });
     } catch (error) {
-      // Error already handled by mutation
       console.error('Failed to create task:', error);
     }
   };
 
-  /**
-   * Save draft manually or via auto-save
-   */
   const handleSaveDraft = async () => {
     const data = formValues;
 
-    // Basic validation for draft
     if (!data.title || data.title.length < 5) {
       return;
     }
@@ -139,177 +117,193 @@ export function CreateTaskPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(ROUTES.TASKS)}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Tasks
-        </Button>
-        <h1 className="text-3xl font-bold">Create New Task</h1>
-        <p className="mt-2 text-gray-600">
-          Post a task and get proposals from qualified executors
-        </p>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Title */}
-        <div className="space-y-2">
-          <Label htmlFor="title">
-            Task Title <span className="text-red-500">*</span>
-          </Label>
-          <Input
-            id="title"
-            {...register('title')}
-            placeholder="e.g., Build a responsive website for my business"
-            className={errors.title ? 'border-red-500' : ''}
-          />
-          {errors.title && (
-            <p className="text-sm text-red-500">{errors.title.message}</p>
-          )}
-        </div>
-
-        {/* Description */}
-        <div className="space-y-2">
-          <Label htmlFor="description">
-            Description <span className="text-red-500">*</span>
-          </Label>
-          <Textarea
-            id="description"
-            {...register('description')}
-            rows={6}
-            placeholder="Describe your task in detail. Include requirements, expectations, and any specific instructions..."
-            className={errors.description ? 'border-red-500' : ''}
-          />
-          {errors.description && (
-            <p className="text-sm text-red-500">{errors.description.message}</p>
-          )}
-        </div>
-
-        {/* Category Select */}
-        <CategorySelect
-          categoryId={formValues.categoryId}
-          subCategoryId={formValues.subCategoryId}
-          onCategoryChange={(id) => setValue('categoryId', id)}
-          onSubCategoryChange={(id) => setValue('subCategoryId', id)}
-          error={errors.categoryId?.message}
-        />
-
-        {/* Budget */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Budget Type */}
-          <div className="space-y-2">
-            <Label htmlFor="budgetType">
-              Budget Type <span className="text-red-500">*</span>
-            </Label>
-            {loadingBudgetTypes ? (
-              <div className="flex items-center gap-2">
-                <LoadingSpinner />
-                <span className="text-sm text-gray-500">Loading...</span>
-              </div>
-            ) : (
-              <Select
-                value={formValues.budgetTypeId ?? ''}
-                onValueChange={(value) => setValue('budgetTypeId', value)}
-              >
-                <SelectTrigger
-                  id="budgetType"
-                  className={errors.budgetTypeId ? 'border-red-500' : ''}
-                >
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {budgetTypes?.map((type) => (
-                    <SelectItem key={type.id} value={type.id}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            {errors.budgetTypeId && (
-              <p className="text-sm text-red-500">{errors.budgetTypeId.message}</p>
-            )}
-          </div>
-
-          {/* Budget Amount */}
-          <div className="space-y-2">
-            <Label htmlFor="budgetAmount">
-              Budget Amount (UZS) <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="budgetAmount"
-              type="number"
-              {...register('budgetAmount', { valueAsNumber: true })}
-              placeholder="e.g., 5000000"
-              className={errors.budgetAmount ? 'border-red-500' : ''}
-            />
-            {errors.budgetAmount && (
-              <p className="text-sm text-red-500">{errors.budgetAmount.message}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Location */}
-        <LocationSelect
-          regionId={regionId}
-          districtId={formValues.serviceLocationId ?? ''}
-          onRegionChange={setRegionId}
-          onDistrictChange={(id) => setValue('serviceLocationId', id)}
-          error={errors.serviceLocationId?.message}
-        />
-
-        {/* Images */}
-        <div className="space-y-2">
-          <Label>
-            Task Images <span className="text-red-500">*</span>
-          </Label>
-          <p className="text-sm text-gray-500">
-            Upload photos that represent your task (minimum 1, maximum 5 images)
-          </p>
-          <TaskImageUpload images={images} onChange={setImages} />
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center justify-between gap-4 border-t pt-6">
+    <div className="animate-in">
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
           <Button
-            type="button"
-            variant="outline"
-            onClick={handleSaveDraft}
-            disabled={saveDraftMutation.isPending}
+            variant="ghost"
+            onClick={() => navigate(ROUTES.TASKS)}
+            className="-ml-2 mb-4 text-muted-foreground hover:text-foreground"
           >
-            {saveDraftMutation.isPending ? 'Saving...' : 'Save as Draft'}
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Tasks
           </Button>
+          <h1 className="text-2xl font-bold sm:text-3xl">Create New Task</h1>
+          <p className="mt-2 text-muted-foreground">
+            Post a task and get proposals from qualified executors
+          </p>
+        </div>
 
-          <div className="flex gap-3">
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          {/* Title */}
+          <div className="rounded-xl border bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold">Basic Information</h2>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="title">
+                  Task Title <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="title"
+                  {...register('title')}
+                  placeholder="e.g., Build a responsive website for my business"
+                  className={`h-11 ${errors.title ? 'border-red-500' : ''}`}
+                />
+                {errors.title && (
+                  <p className="text-sm text-red-500">{errors.title.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">
+                  Description <span className="text-red-500">*</span>
+                </Label>
+                <Textarea
+                  id="description"
+                  {...register('description')}
+                  rows={6}
+                  placeholder="Describe your task in detail. Include requirements, expectations, and any specific instructions..."
+                  className={errors.description ? 'border-red-500' : ''}
+                />
+                {errors.description && (
+                  <p className="text-sm text-red-500">{errors.description.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Category */}
+          <div className="rounded-xl border bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold">Category</h2>
+            <CategorySelect
+              categoryId={formValues.categoryId}
+              subCategoryId={formValues.subCategoryId}
+              onCategoryChange={(id) => setValue('categoryId', id)}
+              onSubCategoryChange={(id) => setValue('subCategoryId', id)}
+              error={errors.categoryId?.message}
+            />
+          </div>
+
+          {/* Budget */}
+          <div className="rounded-xl border bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold">Budget</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="budgetType">
+                  Budget Type <span className="text-red-500">*</span>
+                </Label>
+                {loadingBudgetTypes ? (
+                  <div className="flex items-center gap-2">
+                    <LoadingSpinner />
+                    <span className="text-sm text-muted-foreground">Loading...</span>
+                  </div>
+                ) : (
+                  <Select
+                    value={formValues.budgetTypeId ?? ''}
+                    onValueChange={(value) => setValue('budgetTypeId', value)}
+                  >
+                    <SelectTrigger
+                      id="budgetType"
+                      className={`h-11 ${errors.budgetTypeId ? 'border-red-500' : ''}`}
+                    >
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {budgetTypes?.map((type) => (
+                        <SelectItem key={type.id} value={type.id}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {errors.budgetTypeId && (
+                  <p className="text-sm text-red-500">{errors.budgetTypeId.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="budgetAmount">
+                  Budget Amount (UZS) <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="budgetAmount"
+                  type="number"
+                  {...register('budgetAmount', { valueAsNumber: true })}
+                  placeholder="e.g., 5000000"
+                  className={`h-11 ${errors.budgetAmount ? 'border-red-500' : ''}`}
+                />
+                {errors.budgetAmount && (
+                  <p className="text-sm text-red-500">{errors.budgetAmount.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className="rounded-xl border bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold">Location</h2>
+            <LocationSelect
+              regionId={regionId}
+              districtId={formValues.serviceLocationId ?? ''}
+              onRegionChange={setRegionId}
+              onDistrictChange={(id) => setValue('serviceLocationId', id)}
+              error={errors.serviceLocationId?.message}
+            />
+          </div>
+
+          {/* Images */}
+          <div className="rounded-xl border bg-card p-6">
+            <h2 className="mb-2 text-lg font-semibold">Task Images</h2>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Upload photos that represent your task (minimum 1, maximum 5 images)
+            </p>
+            <TaskImageUpload images={images} onChange={setImages} />
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between gap-4 rounded-xl border bg-card p-6">
             <Button
               type="button"
-              variant="ghost"
-              onClick={() => navigate(ROUTES.TASKS)}
+              variant="outline"
+              onClick={handleSaveDraft}
+              disabled={saveDraftMutation.isPending}
             >
-              Cancel
+              <Save className="mr-2 h-4 w-4" />
+              {saveDraftMutation.isPending ? 'Saving...' : 'Save as Draft'}
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || createTaskMutation.isPending}
-            >
-              {createTaskMutation.isPending ? (
-                <>
-                  <LoadingSpinner />
-                  <span className="ml-2">Creating...</span>
-                </>
-              ) : (
-                'Publish Task'
-              )}
-            </Button>
+
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => navigate(ROUTES.TASKS)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || createTaskMutation.isPending}
+                className="bg-gradient-primary hover:opacity-90"
+              >
+                {createTaskMutation.isPending ? (
+                  <>
+                    <LoadingSpinner />
+                    <span className="ml-2">Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Publish Task
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

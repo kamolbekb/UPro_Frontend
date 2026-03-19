@@ -5,12 +5,15 @@
 
 /**
  * Application status enum
+ * Maps to backend ApplicationStatus enum
  */
 export enum ApplicationStatus {
-  Pending = 0,
-  Accepted = 1,
-  Rejected = 2,
-  Completed = 3,
+  Applied = 1,
+  Viewed = 2,
+  Accepted = 3,
+  Completed = 4,
+  Rejected = 5,
+  Archived = 6,
 }
 
 /**
@@ -22,31 +25,45 @@ export interface ApplyTaskRequest {
 }
 
 /**
- * Executor application info (shown to task creator)
+ * Executor limited data shown to task creator (ExecutorLimitDataDto)
  */
-export interface ExecutorApplication {
+export interface ExecutorLimitData {
   id: string;
-  executorId: string;
-  executorName: string;
-  executorImage: string | null;
-  executorRating: number | null;
-  completedTasks: number;
+  applicationId: string;
+  fullName: string | null;
   coverLetter: string | null;
-  status: ApplicationStatus;
-  appliedAt: string;
+  image: string | null;
 }
 
 /**
- * Task with application info (for creator/executor dashboards)
+ * Creator's task item (OrderTaskLimitItemDto)
+ * Returned from GET /creator/tasks
  */
-export interface TaskApplicationItem {
+export interface CreatorTaskItem {
   id: string;
-  taskId: string;
-  taskTitle: string;
-  taskDescription: string;
-  status: ApplicationStatus;
-  applicantCount: number;
-  createdAt: string;
+  code: string;
+  title: string;
+  locationTypeName: string;
+  districtName: string;
+  startDate: string | null;
   budget: number | null;
-  budgetTypeName: string | null;
+  image: string | null;
+  isArchived: boolean;
+}
+
+/**
+ * Executor's applied task item (OrderTaskApplicationLimitItemDto)
+ * Returned from GET /executor/tasks
+ */
+export interface ExecutorTaskItem {
+  id: string;
+  code: string;
+  title: string;
+  locationTypeName: string;
+  districtName: string;
+  startDate: string | null;
+  budget: number | null;
+  image: string | null;
+  applicationStatusName: string;
+  isArchived: boolean;
 }

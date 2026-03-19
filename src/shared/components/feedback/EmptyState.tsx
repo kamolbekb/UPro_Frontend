@@ -14,19 +14,6 @@ interface EmptyStateProps {
 
 /**
  * Empty state component for lists and collections
- *
- * Displays a friendly message when no data is available.
- * Optionally includes a call-to-action button.
- *
- * Usage:
- * ```tsx
- * <EmptyState
- *   icon={FileText}
- *   title="No tasks found"
- *   description="Create your first task to get started"
- *   action={{ label: "Create Task", onClick: () => navigate('/tasks/new') }}
- * />
- * ```
  */
 export function EmptyState({
   icon: Icon = Inbox,
@@ -36,14 +23,16 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12 text-center', className)}>
-      <Icon className="mb-4 h-16 w-16 text-muted-foreground/50" strokeWidth={1.5} />
+    <div className={cn('flex flex-col items-center justify-center py-16 text-center', className)}>
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+        <Icon className="h-8 w-8 text-primary" strokeWidth={1.5} />
+      </div>
       <h3 className="mb-2 text-lg font-semibold">{title}</h3>
       {description && <p className="mb-6 max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action && (
         <button
           onClick={action.onClick}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          className="rounded-lg bg-gradient-primary px-5 py-2.5 text-sm font-medium text-white shadow-soft transition-all hover:opacity-90 hover:shadow-hover"
         >
           {action.label}
         </button>

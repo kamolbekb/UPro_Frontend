@@ -11,21 +11,12 @@ type ViewMode = 'tasks' | 'executors';
 
 /**
  * HomePage - Unified view for browsing tasks and executors
- *
- * Features:
- * - Toggle between tasks and executors views
- * - Create Task button (redirects to login if not authenticated)
- * - Responsive layout
  */
 export function HomePage() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [viewMode, setViewMode] = useState<ViewMode>('tasks');
 
-  /**
-   * Handle create task button click
-   * Redirects to login if not authenticated
-   */
   const handleCreateTask = () => {
     if (!isAuthenticated) {
       navigate(ROUTES.LOGIN, { state: { returnUrl: ROUTES.TASK_NEW } });
@@ -35,21 +26,45 @@ export function HomePage() {
   };
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-8">
-      {/* Page Header with Toggle */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 className="text-3xl font-bold">
-            {viewMode === 'tasks' ? 'Browse Tasks' : 'Find Executors'}
-          </h1>
+    <div className="animate-in">
+      {/* Hero Section */}
+      <div className="bg-gradient-hero">
+        <div className="container mx-auto max-w-7xl px-4 pb-8 pt-10">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                {viewMode === 'tasks' ? (
+                  <>Browse <span className="text-gradient">Tasks</span></>
+                ) : (
+                  <>Find <span className="text-gradient">Executors</span></>
+                )}
+              </h1>
+              <p className="mt-2 text-muted-foreground">
+                {viewMode === 'tasks'
+                  ? 'Find freelance opportunities that match your skills'
+                  : 'Browse skilled professionals ready to help with your tasks'}
+              </p>
+            </div>
+
+            {viewMode === 'tasks' && (
+              <Button
+                onClick={handleCreateTask}
+                size="lg"
+                className="bg-gradient-primary hover:opacity-90"
+              >
+                <Plus className="mr-2 h-5 w-5" />
+                Create Task
+              </Button>
+            )}
+          </div>
 
           {/* View Toggle */}
-          <div className="flex gap-2 rounded-lg border bg-muted p-1">
+          <div className="inline-flex rounded-xl border bg-white/60 p-1 shadow-soft backdrop-blur-sm">
             <button
               onClick={() => setViewMode('tasks')}
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all ${
                 viewMode === 'tasks'
-                  ? 'bg-background text-foreground shadow-sm'
+                  ? 'bg-white text-foreground shadow-soft'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -58,9 +73,9 @@ export function HomePage() {
             </button>
             <button
               onClick={() => setViewMode('executors')}
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all ${
                 viewMode === 'executors'
-                  ? 'bg-background text-foreground shadow-sm'
+                  ? 'bg-white text-foreground shadow-soft'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -69,54 +84,20 @@ export function HomePage() {
             </button>
           </div>
         </div>
-
-        {/* Create Task Button - Only visible in tasks view */}
-        {viewMode === 'tasks' && (
-          <Button onClick={handleCreateTask} size="lg">
-            <Plus className="mr-2 h-5 w-5" />
-            Create Task
-          </Button>
-        )}
       </div>
 
-      {/* Description */}
-      <p className="mb-6 text-gray-600">
-        {viewMode === 'tasks'
-          ? 'Find freelance opportunities that match your skills'
-          : 'Browse skilled professionals ready to help with your tasks'}
-      </p>
-
       {/* Content */}
-      {viewMode === 'tasks' ? (
-        <TasksPageContent />
-      ) : (
-        <ExecutorsPageContent />
-      )}
-    </div>
-  );
-}
-
-/**
- * TasksPageContent - Renders task list without header
- */
-function TasksPageContent() {
-  // Import the task list logic from TasksPage but without the header
-  // For now, we'll just render the TasksPage and hide its header with CSS
-  return (
-    <div className="[&>div]:!pt-0 [&>div>div:first-child]:!hidden [&>div>div:nth-child(2)]:!hidden">
-      <TasksPage />
-    </div>
-  );
-}
-
-/**
- * ExecutorsPageContent - Renders executor list without header
- */
-function ExecutorsPageContent() {
-  // Import the executor list logic from ExecutorsPage but without the header
-  return (
-    <div className="[&>div]:!pt-0 [&>div>div:first-child]:!hidden [&>div>div:nth-child(2)]:!hidden">
-      <ExecutorsPage />
+      <div className="container mx-auto max-w-7xl px-4 py-6">
+        {viewMode === 'tasks' ? (
+          <div className="[&>div]:!pt-0 [&>div>div:first-child]:!hidden [&>div>div:nth-child(2)]:!hidden">
+            <TasksPage />
+          </div>
+        ) : (
+          <div className="[&>div]:!pt-0 [&>div>div:first-child]:!hidden [&>div>div:nth-child(2)]:!hidden">
+            <ExecutorsPage />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

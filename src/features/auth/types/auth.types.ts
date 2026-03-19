@@ -85,6 +85,21 @@ export interface CompleteProfileResponse {
 }
 
 /**
+ * Full user profile from GetCurrentUser (UserApplicationResponseModel)
+ */
+export interface UserProfile {
+  id: string;
+  email: string;
+  code: string;
+  firstName: string;
+  lastName: string;
+  image: string | null;
+  isActive: boolean;
+  isExecutor: boolean;
+  role: number; // 0=User, 1=Admin
+}
+
+/**
  * Request body for updating user profile
  */
 export interface UpdateMyProfileRequest {

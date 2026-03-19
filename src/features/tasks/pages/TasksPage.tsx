@@ -55,7 +55,7 @@ export function TasksPage() {
       },
       {
         threshold: 0.1,
-        rootMargin: '100px', // Start loading 100px before reaching the element
+        rootMargin: '100px',
       }
     );
 
@@ -66,27 +66,28 @@ export function TasksPage() {
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Flatten all pages into a single task list
-  // Filter out any undefined/null values to prevent runtime errors
   const allTasks = data?.pages.flatMap((page) => page.items ?? []).filter(Boolean) ?? [];
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
   const handleDistrictChange = (_districtId: string | undefined) => {
     // District change is handled by region change in TaskFilters
-    // This is a placeholder for the interface
   };
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       {/* Page Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Browse Tasks</h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-muted-foreground">
             Find freelance opportunities that match your skills
           </p>
         </div>
-        <Button onClick={() => navigate(ROUTES.TASK_NEW)} size="lg">
+        <Button
+          onClick={() => navigate(ROUTES.TASK_NEW)}
+          size="lg"
+          className="bg-gradient-primary hover:opacity-90"
+        >
           <Plus className="mr-2 h-5 w-5" />
           Create Task
         </Button>
@@ -109,14 +110,16 @@ export function TasksPage() {
         />
       </div>
 
-      {/* Loading State (Initial Load) */}
+      {/* Loading State */}
       {isLoading && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="space-y-3">
+            <div key={index} className="overflow-hidden rounded-xl border">
               <Skeleton className="h-48 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
+              <div className="space-y-3 p-4">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
             </div>
           ))}
         </div>
@@ -141,12 +144,10 @@ export function TasksPage() {
       {/* Task Grid */}
       {!isLoading && !isError && allTasks.length > 0 && (
         <>
-          {/* Results Count */}
-          <div className="mb-4 text-sm text-gray-600">
+          <div className="mb-4 text-sm text-muted-foreground">
             Showing {allTasks.length} of {totalCount} tasks
           </div>
 
-          {/* Task Cards */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {allTasks.map((task) => (
               <TaskCard
@@ -164,7 +165,7 @@ export function TasksPage() {
           <div ref={loadMoreRef} className="mt-8 flex justify-center">
             {isFetchingNextPage && <LoadingSpinner />}
             {!hasNextPage && allTasks.length > 0 && (
-              <p className="text-sm text-gray-500">No more tasks to load</p>
+              <p className="text-sm text-muted-foreground">No more tasks to load</p>
             )}
           </div>
         </>
